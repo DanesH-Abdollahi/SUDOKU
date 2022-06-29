@@ -46,43 +46,45 @@
 # pygame.quit()
 
 
-import pygame
-from pygame.locals import *
+# import pygame
+# from pygame.locals import *
 
-from pygame.rect import *
+# from pygame.rect import *
 
-pts = (
-    "topleft",
-    "topright",
-    "bottomleft",
-    "bottomright",
-    "midtop",
-    "midright",
-    "midbottom",
-    "midleft",
-    "center",
-)
-SIZE = 500, 200
-RED = (255, 0, 0)
-GRAY = (150, 150, 150)
-pygame.init()
-screen = pygame.display.set_mode(SIZE)
-running = True
-rect = Rect(50, 60, 200, 80)
+# pts = (
+#     "topleft",
+#     "topright",
+#     "bottomleft",
+#     "bottomright",
+#     "midtop",
+#     "midright",
+#     "midbottom",
+#     "midleft",
+#     "center",
+# )
+# SIZE = 500, 200
+# RED = (255, 0, 0)
+# GRAY = (150, 150, 150)
+# pygame.init()
+# screen = pygame.display.set_mode(SIZE)
+# running = True
+# rect = Rect(50, 60, 200, 80)
 
-while running:
-    for event in pygame.event.get():
-        if event.type == QUIT:
-            running = False
+# while running:
+#     for event in pygame.event.get():
+#         if event.type == QUIT:
+#             running = False
 
-        screen.fill(GRAY)
-        pygame.draw.rect(screen, GRAY, rect, 4)
+#         screen.fill(GRAY)
+#         pygame.draw.rect(screen, GRAY, rect, 4)
 
-        for pt in pts:
-            pos = eval("rect." + pt)
-            # pygame.draw_text(pt, pos)
-            pygame.draw.circle(screen, RED, pos, 3)
+#         for pt in pts:
+#             pos = eval("rect." + pt)
+#             # pygame.draw_text(pt, pos)
+#             pygame.draw.circle(screen, RED, pos, 3)
 
-    pygame.display.flip()
+#     pygame.display.flip()
 
-pygame.quit()
+# pygame.quit()
+
+hello
