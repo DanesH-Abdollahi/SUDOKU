@@ -12,8 +12,8 @@ Width, Height = SIZE
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 GRAY = (127, 127, 127)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
+RED = (178, 34, 34)
+GREEN = (0, 100, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
 CYAN = (0, 255, 255)
@@ -24,6 +24,23 @@ MY_COLOR = (253, 245, 230)
 
 Orginal_Sudoko_number_color = (25, 25, 112)
 background_color = MY_COLOR
+
+
+def new_rect(screen, rect, border_color, inner_color, border, Horizental_diff, Vertical_diff, margin, bottom_margin):
+    pygame.draw.rect(
+        screen,
+        border_color,
+        (rect.left, rect.top, Horizental_diff +
+         border, Vertical_diff + border), border
+    )
+
+    inner = pygame.Rect(rect.left + border, rect.top +
+                        border, Horizental_diff - border, Vertical_diff - border)
+    pygame.draw.rect(screen, inner_color, inner)
+
+    add_lines(screen, Horizental_diff, Vertical_diff, margin, bottom_margin)
+
+    pygame.display.update()
 
 
 def add_lines(screen, Horizental_diff, Vertical_diff, margin, bottom_margin):
@@ -71,50 +88,128 @@ def draw_text(screen, text, pos, color):
     pygame.display.update()
 
 
-def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_margin, orginal_sudoko, solution_sudoko, rects):
+def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_margin, orginal_sudoko, solution_sudoko, rects,  totall_mistakes):
     i, j = position[1], position[0]
+
     i, j = (i-margin) // Vertical_diff, (j-margin) // Horizental_diff
 
-    if i > (Height - bottom_margin):
-        i = 8
-    print(i, j)
+    tmp = orginal_sudoko.copy()
+    tmp_color = np.zeros((9, 9), dtype=tuple)
+    # print("************************************************************")
+    # for ii in range(9):
+    #     for jj in range(9):
+    #         print(tmp[ii, jj], end=" ")
+    #     print("\n")
+    # print("************************************************************")
+
+    if i > 8 or j > 8:
+        return totall_mistakes, tmp
+
+    # print(i, j)
     # myfont = pygame.font.SysFont('Comic Sans MS', 70)
     # print(position)
 
+    if (tmp[i][j] != 0):
+        return totall_mistakes, tmp
+
+    # if (tmp[i][j] != 0):
+    #     return totall_mistakes, tmp
+
+    new_rect(screen, rects[9*i + j], BLACK, (173, 216, 230), 3,
+             Horizental_diff, Vertical_diff, margin, bottom_margin)
+
     while True:
+        if totall_mistakes >= 3:
+            pygame.quit()
+            sys.exit()
+
         for event in pygame.event.get():
+
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
 
             if event.type == pygame.KEYDOWN:
                 if (orginal_sudoko[i][j] != 0):
-                    return
+                    return totall_mistakes, tmp
 
-                if(event.key == 48 or event.key == 1073741922):  # checking with zero
-                    # pass
-                    draw_text(screen, " ",
-                              rects[9*i + j].center, GREEN)
+                if(event.key == 8):
+                    new_rect(screen, rects[9*i + j], BLACK,  (173, 216, 230), 3,
+                             Horizental_diff, Vertical_diff, margin, bottom_margin)
+                    tmp[i][j] = 0
 
                 if(0 < event.key - 48 < 10):
-                    if (event.key - 48) == solution_sudoko[i][j]:
-                        draw_text(screen, str(event.key - 48),
-                                  rects[9*i + j].center, GREEN)
-                        orginal_sudoko[i][j] = event.key - 48
-                    else:
-                        draw_text(screen, str(event.key - 48),
-                                  rects[9*i + j].center, RED)
+                    # new_rect(screen, rects[9*i + j], BLACK, MY_COLOR, 3,
+                    #          Horizental_diff, Vertical_diff, margin, bottom_margin)
+                    if (event.key - 48 != tmp[i][j]):
+                        new_rect(screen, rects[9*i + j], BLACK, (173, 216, 230), 3,
+                                 Horizental_diff, Vertical_diff, margin, bottom_margin)
+
+                        if (event.key - 48) == solution_sudoko[i][j]:
+                            draw_text(screen, str(event.key - 48),
+                                      rects[9*i + j].center, GREEN)
+                            # orginal_sudoko[i][j] = event.key - 48
+                            tmp[i][j] = event.key - 48
+                            tmp_color[i][j] = GREEN
+                            new_rect(screen, rects[9*i + j], BLACK, MY_COLOR, 3,
+                                     Horizental_diff, Vertical_diff, margin, bottom_margin)
+                            draw_text(screen, str(tmp[i][j]),
+                                      rects[9*i + j].center, tmp_color[i][j])
+
+                            return totall_mistakes, tmp
+
+                        else:
+                            draw_text(screen, str(event.key - 48),
+                                      rects[9*i + j].center, RED)
+
+                            tmp[i][j] = event.key - 48
+                            tmp_color[i][j] = RED
+                            totall_mistakes += 1
 
                 if(0 < event.key - 1073741922 + 10 < 10):
-                    if (event.key - 1073741922 + 10) == solution_sudoko[i][j]:
-                        draw_text(screen, str(event.key - 1073741922 + 10),
-                                  rects[9*i + j].center, GREEN)
-                        orginal_sudoko[i][j] = event.key - 1073741922 + 10
-                    else:
-                        draw_text(screen, str(event.key - 1073741922 + 10),
-                                  rects[9*i + j].center, RED)
+                    # new_rect(screen, rects[9*i + j], BLACK, MY_COLOR, 3,
+                    #          Horizental_diff, Vertical_diff, margin, bottom_margin)
 
-                return
+                    if (event.key - 1073741922 + 10 != tmp[i][j]):
+                        new_rect(screen, rects[9*i + j], BLACK, (173, 216, 230), 3,
+                                 Horizental_diff, Vertical_diff, margin, bottom_margin)
+
+                        if (event.key - 1073741922 + 10) == solution_sudoko[i][j]:
+                            draw_text(screen, str(event.key - 1073741922 + 10),
+                                      rects[9*i + j].center, GREEN)
+                            # orginal_sudoko[i][j] = event.key - 1073741922 + 10
+                            tmp[i][j] = event.key - 1073741922 + 10
+                            tmp_color[i][j] = GREEN
+                            new_rect(screen, rects[9*i + j], BLACK, MY_COLOR, 3,
+                                     Horizental_diff, Vertical_diff, margin, bottom_margin)
+                            draw_text(screen, str(tmp[i][j]),
+                                      rects[9*i + j].center, tmp_color[i][j])
+
+                            return totall_mistakes, tmp
+
+                        else:
+                            draw_text(screen, str(event.key - 1073741922 + 10),
+                                      rects[9*i + j].center, RED)
+
+                            tmp[i][j] = event.key - 1073741922 + 10
+                            tmp_color[i][j] = RED
+                            totall_mistakes += 1
+
+            # print(i, j)
+            if event.type == pygame.MOUSEBUTTONUP and is_valid(tmp, solution_sudoko):
+                pos = pygame.mouse.get_pos()
+                new_i, new_j = pos[1], pos[0]
+                new_i, new_j = (
+                    new_i-margin) // Vertical_diff, (new_j-margin) // Horizental_diff
+
+                if(i != new_i or j != new_j):
+                    new_rect(screen, rects[9*i + j], BLACK, MY_COLOR, 3,
+                             Horizental_diff, Vertical_diff, margin, bottom_margin)
+
+                    totall_mistakes, tmp = insert(screen, pos, margin, Horizental_diff, Vertical_diff, bottom_margin,
+                                                  tmp, solution_sudoko, rects,  totall_mistakes)
+
+                    return totall_mistakes, tmp
 
 
 def add_grid(screen):
@@ -143,20 +238,20 @@ def add_grid(screen):
 
 def add_sudoko_table(screen, Horizental_diff, Vertical_diff, margin, rects, bottom_margin):
 
-    sudoku = generators.random_sudoku(avg_rank=150)  # Generate a Sudoku
+    sudoku = generators.random_sudoku(avg_rank=20)  # Generate a Sudoku
     sudoku_np_array = np.array(list(str(sudoku)), dtype=int).reshape(9, 9)
 
     for i in range(len(sudoku_np_array)):
         for j in range(len(sudoku_np_array)):
             if (0 < sudoku_np_array[i][j] < 10):
-                r1 = pygame.draw.rect(screen, "#FFE4E1", rects[i*9 + j], 0)
+
+                new_rect(screen, rects[i*9 + j], BLACK,
+                         "#FFE4E1", 3, Horizental_diff, Vertical_diff, margin, bottom_margin)
                 draw_text(screen, str(
                     sudoku_np_array[i][j]), rects[i*9 + j].center, Orginal_Sudoko_number_color)
 
                 sleep(0.008)
                 pygame.display.update()
-
-    add_lines(screen, Horizental_diff, Vertical_diff, margin, bottom_margin)
 
     solution = solvers.backtrack(sudoku)  # Solve a Sudoku
     sudoku_solution_np_array = np.array(
@@ -174,6 +269,15 @@ def add_sudoko_table(screen, Horizental_diff, Vertical_diff, margin, rects, bott
     # )
 
 
+def is_valid(tmp, solution):
+    for i in range(9):
+        for j in range(9):
+            if tmp[i][j] != 0 and tmp[i, j] != solution[i, j]:
+                return False
+
+    return True
+
+
 def main():
     pygame.init()
     screen = pygame.display.set_mode(SIZE)
@@ -185,16 +289,28 @@ def main():
 
     orginal_sudoko, solution_sudoko, margin, Horizental_diff, Vertical_diff, bottom_margin, rects = add_grid(
         screen)
+
+    # current_mistake = 0
+    totall_mistakes = 0
+    tmp = orginal_sudoko.copy()
     # add_sudoko_table(screen, myfont)
 
     while True:
         for event in pygame.event.get():
-            if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-                pos = pygame.mouse.get_pos()
-                insert(screen, pos, margin, Horizental_diff, Vertical_diff,
-                       bottom_margin, orginal_sudoko, solution_sudoko, rects)
-
             if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+            if totall_mistakes < 3:
+                if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+                    pos = pygame.mouse.get_pos()
+
+                    if (margin < pos[1] < Height - bottom_margin) and (margin < pos[0] < Width - margin):
+                        totall_mistakes, tmp = insert(screen, pos, margin, Horizental_diff, Vertical_diff,
+                                                      bottom_margin, tmp, solution_sudoko, rects,
+                                                      totall_mistakes)
+                        tmp = tmp
+            else:
                 pygame.quit()
                 sys.exit()
 
