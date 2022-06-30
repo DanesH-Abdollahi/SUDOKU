@@ -2,6 +2,7 @@ import pygame
 import sys
 from dokusan import generators, renderers, solvers
 import numpy as np
+from time import sleep
 
 SIZE = (800, 800)
 Width, Height = SIZE
@@ -78,6 +79,8 @@ def add_sudoko_table(screen, font, horizental_diff, vertical_diff, margin):
                 value = font.render(str(sudoku_np_array[i][j]), True, BLACK)
                 screen.blit(
                     value, ((horizental_diff/2)+(j*horizental_diff)-3, (vertical_diff/2) + (i * vertical_diff) - margin))
+                pygame.display.update()
+                sleep(0.01)
 
     pygame.display.update()
 
