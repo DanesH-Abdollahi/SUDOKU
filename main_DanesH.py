@@ -1,8 +1,10 @@
+from turtle import color, pos
 import pygame
 import sys
 from dokusan import generators, renderers, solvers
 import numpy as np
 from time import sleep
+from pygame.rect import *
 
 SIZE = (800, 800)
 Width, Height = SIZE
@@ -20,15 +22,37 @@ MY_COLOR = (204, 229, 255)
 MY_COLOR = (176, 224, 230)
 MY_COLOR = (253, 245, 230)
 
+Orginal_Sudoko_number_color = (25, 25, 112)
 background_color = MY_COLOR
 
 
-def add_grid(screen, font):
-    margin = Width / 80
+def draw_text(screen, text, pos, color):
+    font = pygame.font.SysFont('Comic Sans MS', 70)
+    img = font.render(text, True, color)
+    pos = img.get_rect(center=pos)
+    screen.blit(img, pos)
+
+
+def insert(screen, position):
+    i, j = position[1], position[0]
+    myfont = pygame.font.SysFont('Comic Sans MS', 70)
+    print(position)
+    # while True:
+    #     for event in pygame.event.get():
+    #         if event.type == pygame.QUIT:
+    #             pygame.quit()
+    #             sys.exit()
+
+    #         if event.type == pygame.KEYDOWN:
+    #             pass
+
+
+def add_grid(screen):
+    margin = Width // 80
     bottom_margin = 15 * margin
 
-    Horizental_diff = (Width - 2 * margin) / 9
-    Vertical_diff = (Height - margin - bottom_margin) / 9
+    Horizental_diff = (Width - 2 * margin) // 9
+    Vertical_diff = (Height - margin - bottom_margin) // 9
 
     for i in range(10):
         if(i % 3 == 0):
@@ -37,7 +61,7 @@ def add_grid(screen, font):
                 BLACK,
                 (margin + Horizental_diff * i, margin),
                 (margin + Horizental_diff * i, Height - bottom_margin),
-                4,
+                6,
             )  # Draw Vertical Lines
 
             pygame.draw.line(
@@ -45,14 +69,14 @@ def add_grid(screen, font):
                 BLACK,
                 (margin, margin + Vertical_diff * i),
                 (margin + Horizental_diff * 9, margin + Vertical_diff * i),
-                4,)
+                6,)
 
         pygame.draw.line(
             screen,
             BLACK,
             (margin + Horizental_diff * i, margin),
             (margin + Horizental_diff * i, Height - bottom_margin),
-            2,
+            4,
         )  # Draw Vertical Lines
 
         pygame.draw.line(
@@ -60,15 +84,23 @@ def add_grid(screen, font):
             BLACK,
             (margin, margin + Vertical_diff * i),
             (margin + Horizental_diff * 9, margin + Vertical_diff * i),
-            2,
+            4,
         )  # Draw Horizental Lines
 
+    Rects = []
+    for i in range(9):
+        for j in range(9):
+            Rects.append(pygame.Rect(margin + (j*Horizental_diff),
+                         margin + (i*Vertical_diff), Horizental_diff, Vertical_diff))
+
+    [pygame.draw.rect(screen, BLACK, r, 1) for r in Rects]
     pygame.display.update()
 
-    add_sudoko_table(screen, font, Horizental_diff, Vertical_diff, margin)
+    add_sudoko_table(screen, Horizental_diff,
+                     Vertical_diff, margin, Rects, bottom_margin)
 
 
-def add_sudoko_table(screen, font, horizental_diff, vertical_diff, margin):
+def add_sudoko_table(screen, Horizental_diff, Vertical_diff, margin, rects, bottom_margin):
 
     sudoku = generators.random_sudoku(avg_rank=150)  # Generate a Sudoku
     sudoku_np_array = np.array(list(str(sudoku)), dtype=int).reshape(9, 9)
@@ -76,17 +108,52 @@ def add_sudoko_table(screen, font, horizental_diff, vertical_diff, margin):
     for i in range(len(sudoku_np_array)):
         for j in range(len(sudoku_np_array)):
             if (0 < sudoku_np_array[i][j] < 10):
-                value = font.render(str(sudoku_np_array[i][j]), True, BLACK)
-                screen.blit(
-                    value, ((horizental_diff/2)+(j*horizental_diff)-3, (vertical_diff/2) + (i * vertical_diff) - margin))
+                r1 = pygame.draw.rect(screen, "#FFE4E1", rects[i*9 + j], 0)
+                draw_text(screen, str(
+                    sudoku_np_array[i][j]), rects[i*9 + j].center, Orginal_Sudoko_number_color)
+
+                sleep(0.008)
                 pygame.display.update()
-                sleep(0.01)
+
+    for i in range(10):
+        if(i % 3 == 0):
+            pygame.draw.line(
+                screen,
+                BLACK,
+                (margin + Horizental_diff * i, margin),
+                (margin + Horizental_diff * i, Height - bottom_margin),
+                6,
+            )  # Draw Vertical Lines
+
+            pygame.draw.line(
+                screen,
+                BLACK,
+                (margin, margin + Vertical_diff * i),
+                (margin + Horizental_diff * 9, margin + Vertical_diff * i),
+                6,)
+
+        pygame.draw.line(
+            screen,
+            BLACK,
+            (margin + Horizental_diff * i, margin),
+            (margin + Horizental_diff * i, Height - bottom_margin),
+            4,
+        )  # Draw Vertical Lines
+
+        pygame.draw.line(
+            screen,
+            BLACK,
+            (margin, margin + Vertical_diff * i),
+            (margin + Horizental_diff * 9, margin + Vertical_diff * i),
+            4,
+        )  # Draw Horizental Lines
 
     pygame.display.update()
 
-    # solution = solvers.backtrack(sudoku)  # Solve a Sudoku
-    # sudoku_solution_np_array = np.array(
-    #     list(str(solution)), dtype=int).reshape(9, 9)
+    solution = solvers.backtrack(sudoku)  # Solve a Sudoku
+    sudoku_solution_np_array = np.array(
+        list(str(solution)), dtype=int).reshape(9, 9)
+
     # print(renderers.colorful(solution))  # Print Solved Sudoku
 
     # sudoku.update(  # Update Sudoku
@@ -104,13 +171,17 @@ def main():
     screen.fill(background_color)
     pygame.display.update()
 
-    myfont = pygame.font.SysFont('Comic Sans MS', 70)
+    # myfont = pygame.font.SysFont('Comic Sans MS', 70)
 
-    add_grid(screen, myfont)
+    add_grid(screen)
     # add_sudoko_table(screen, myfont)
 
     while True:
         for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+                pos = pygame.mouse.get_pos()
+                insert(screen, pos)
+
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
