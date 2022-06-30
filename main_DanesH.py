@@ -27,7 +27,7 @@ def add_grid(screen):
     Vertical_diff = (Height - margin - bottom_margin) / 9
 
     for i in range(10):
-        if(i % 3 == 0):
+        if i % 3 == 0:
             pygame.draw.line(
                 screen,
                 BLACK,
@@ -41,7 +41,8 @@ def add_grid(screen):
                 BLACK,
                 (margin, margin + Vertical_diff * i),
                 (margin + Horizental_diff * 9, margin + Vertical_diff * i),
-                4,)
+                4,
+            )  # Draw Horizental Lines
 
         pygame.draw.line(
             screen,
