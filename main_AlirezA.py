@@ -53,7 +53,7 @@ black = 0, 0, 0
 gray = 200, 200, 200
 green = 0, 175, 0
 red = 200, 0, 0
-inactive_btn = 51, 255, 255
+inactive_btn = (51, 255, 0) 
 active_btn = 51, 153, 255
 
 screen = pygame.display.set_mode(size)
@@ -400,60 +400,60 @@ def play():
 #         # Draw board
 #         draw_board(active_cell, cells, game)
 
-#         # Create buttons
-#         reset_btn = draw_button(
-#             width - buffer - button_border * 2 - button_width,
-#             height - button_height - button_border * 2 - buffer,
-#             button_width,
-#             button_height,
-#             button_border,
-#             inactive_btn,
-#             black,
-#             "Reset",
-#         )
-#         solve_btn = draw_button(
-#             width - buffer * 2 - button_border * 4 - button_width * 2,
-#             height - button_height - button_border * 2 - buffer,
-#             button_width,
-#             button_height,
-#             button_border,
-#             inactive_btn,
-#             black,
-#             "Visual Solve",
-#         )
+        # Create buttons
+        reset_btn = draw_button(
+            width - buffer - button_border * 2 - button_width,
+            height - button_height - button_border * 2 - buffer,
+            button_width,
+            button_height,
+            button_border,
+            inactive_btn,
+            red,
+            "Reset",
+        )
+        solve_btn = draw_button(
+            width - buffer * 2 - button_border * 4 - button_width * 2,
+            height - button_height - button_border * 2 - buffer,
+            button_width,
+            button_height,
+            button_border,
+            inactive_btn,
+            black,
+            "Visual Solve",
+        )
 
 #         # Check if mouse over either button
-#         if reset_btn.collidepoint(pygame.mouse.get_pos()):
-#             reset_btn = draw_button(
-#                 width - buffer - button_border * 2 - button_width,
-#                 height - button_height - button_border * 2 - buffer,
-#                 button_width,
-#                 button_height,
-#                 button_border,
-#                 active_btn,
-#                 black,
-#                 "Reset",
-#             )
-#         if solve_btn.collidepoint(pygame.mouse.get_pos()):
-#             solve_btn = draw_button(
-#                 width - buffer * 2 - button_border * 4 - button_width * 2,
-#                 height - button_height - button_border * 2 - buffer,
-#                 button_width,
-#                 button_height,
-#                 button_border,
-#                 active_btn,
-#                 black,
-#                 "Visual Solve",
-#             )
+        if reset_btn.collidepoint(pygame.mouse.get_pos()):
+            reset_btn = draw_button(
+                width - buffer - button_border * 2 - button_width,
+                height - button_height - button_border * 2 - buffer,
+                button_width,
+                button_height,
+                button_border,
+                active_btn,
+                black,
+                "Reset",
+            )
+        if solve_btn.collidepoint(pygame.mouse.get_pos()):
+            solve_btn = draw_button(
+                width - buffer * 2 - button_border * 4 - button_width * 2,
+                height - button_height - button_border * 2 - buffer,
+                button_width,
+                button_height,
+                button_border,
+                active_btn,
+                black,
+                "Visual Solve",
+            )
 
-#         # Check if game is complete
-#         if not game.get_empty_cell():
-#             if check_sudoku(game):
-#                 # Set the text
-#                 font = pygame.font.Font(None, 36)
-#                 text = font.render("Solved!", 1, green)
-#                 textbox = text.get_rect(center=(solve_rect.center))
-#                 screen.blit(text, textbox)
+        # # Check if game is complete
+        # if not game.get_empty_cell():
+        #     if check_sudoku(game):
+        #         # Set the text
+        #         font = pygame.font.Font(None, 36)
+        #         text = font.render("Solved!", 1, green)
+        #         textbox = text.get_rect(center=(solve_rect.center))
+        #         screen.blit(text, textbox)
 
         # Update screen
         pygame.display.flip()
