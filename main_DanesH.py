@@ -1,5 +1,7 @@
 import pygame
 import sys
+from dokusan import generators, renderers, solvers
+import numpy as np
 
 SIZE = (800, 800)
 Width, Height = SIZE
@@ -16,10 +18,11 @@ MAGENTA = (255, 0, 255)
 MY_COLOR = (204, 229, 255)
 MY_COLOR = (176, 224, 230)
 MY_COLOR = (253, 245, 230)
+
 background_color = MY_COLOR
 
 
-def add_grid(screen):
+def add_grid(screen, font):
     margin = Width / 80
     bottom_margin = 15 * margin
 
@@ -61,6 +64,35 @@ def add_grid(screen):
 
     pygame.display.update()
 
+    add_sudoko_table(screen, font, Horizental_diff, Vertical_diff, margin)
+
+
+def add_sudoko_table(screen, font, horizental_diff, vertical_diff, margin):
+
+    sudoku = generators.random_sudoku(avg_rank=150)  # Generate a Sudoku
+    sudoku_np_array = np.array(list(str(sudoku)), dtype=int).reshape(9, 9)
+
+    for i in range(len(sudoku_np_array)):
+        for j in range(len(sudoku_np_array)):
+            if (0 < sudoku_np_array[i][j] < 10):
+                value = font.render(str(sudoku_np_array[i][j]), True, BLACK)
+                screen.blit(
+                    value, ((horizental_diff/2)+(j*horizental_diff)-3, (vertical_diff/2) + (i * vertical_diff) - margin))
+
+    pygame.display.update()
+
+    # solution = solvers.backtrack(sudoku)  # Solve a Sudoku
+    # sudoku_solution_np_array = np.array(
+    #     list(str(solution)), dtype=int).reshape(9, 9)
+    # print(renderers.colorful(solution))  # Print Solved Sudoku
+
+    # sudoku.update(  # Update Sudoku
+    #     Sudoku.from_list(
+    #         sudoku_np_array.tolist(),
+    #         box_size=BoxSize(3, 3),
+    #     ).cells()
+    # )
+
 
 def main():
     pygame.init()
@@ -69,7 +101,10 @@ def main():
     screen.fill(background_color)
     pygame.display.update()
 
-    add_grid(screen)
+    myfont = pygame.font.SysFont('Comic Sans MS', 70)
+
+    add_grid(screen, myfont)
+    # add_sudoko_table(screen, myfont)
 
     while True:
         for event in pygame.event.get():
