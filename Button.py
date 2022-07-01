@@ -3,6 +3,8 @@ from unittest import runner
 import pygame
 from pygame.locals import *
 import sys
+import pygame_menu
+from pygame_menu.themes import THEME_DARK
 
 # ----------------------------------------------------- #
 BLACK = (0, 0, 0)
@@ -113,14 +115,14 @@ Screen_Shot = {
     "font": "FORTE.ttf",
     "font_size": 30,
 }
-Time_Elapsed = {  # NEWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
-    "left": Width - Margin - Button_Border * 2 - Button_Width * 2,
+Time_Elapsed = {
+    "left": Margin,
     "top": Height
     - Margin
-    - Button_Border * 4
-    - Button_Height * 2
-    - Vertical_Space_Between_Buttons,
-    "width": 2 * Button_Width,
+    - Button_Border * 6
+    - Button_Height * 3
+    - Vertical_Space_Between_Buttons * 2,
+    "width": 2 * Button_Width + Vertical_Space_Between_Buttons,
     "height": Button_Height,
     "border": Button_Border,
     "color_inactive": "#2c6e49",
@@ -172,8 +174,19 @@ def draw_button(Button_Name, mouse_over=0):
 
     return button
 
+def set_difficulty(value, difficulty):
+    # Do the job here !
+    pass
 
+def start_the_game():
+    # Do the job here !
+    pass
 # --------------------------- __NEW__ -------------------------- #
+menu = pygame_menu.Menu("Welcome", 400, 300, theme=THEME_DARK)
+menu.add.text_input("Name :", default="John Doe")
+menu.add.selector("Difficulty :", [("Hard", 1), ("Easy", 2)], onchange=set_difficulty)
+menu.add.button("Play", start_the_game)
+menu.add.button("Quit", pygame_menu.events.EXIT)
 
 running = True
 while running:
