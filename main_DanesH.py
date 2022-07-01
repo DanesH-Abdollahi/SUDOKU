@@ -1,4 +1,3 @@
-from turtle import color, pos
 import pygame
 import sys
 from dokusan import generators, renderers, solvers
@@ -110,7 +109,6 @@ Screen_Shot = {
 }
 
 # --------------------------- __NEW__ -------------------------- #
-
 
 def draw_button(Button_Name, screen,  mouse_over=0):
 

@@ -1,4 +1,4 @@
-from time import sleep
+import time
 from unittest import runner
 import pygame
 from pygame.locals import *
@@ -33,6 +33,7 @@ screen.fill(background_color)
 pygame.display.update()
 
 # --------------------------- __NEW__ -------------------------- #
+start = time.time()  # NEWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
 Button_Border = 0
 Button_Width = int(Width / 5)
 Button_Height = int(Height * 3 / 40)
@@ -112,6 +113,25 @@ Screen_Shot = {
     "font": "FORTE.ttf",
     "font_size": 30,
 }
+Time_Elapsed = {  # NEWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+    "left": Width - Margin - Button_Border * 2 - Button_Width * 2,
+    "top": Height
+    - Margin
+    - Button_Border * 4
+    - Button_Height * 2
+    - Vertical_Space_Between_Buttons,
+    "width": 2 * Button_Width,
+    "height": Button_Height,
+    "border": Button_Border,
+    "color_inactive": "#2c6e49",
+    "color_active": "#",
+    "border_color": background_color,
+    "text": "",
+    "text_color_inactive": "#fefee3",
+    "text_color_active": "#",
+    "font": "FORTE.ttf",
+    "font_size": 30,
+}
 
 # --------------------------- __NEW__ -------------------------- #
 def draw_button(Button_Name, mouse_over=0):
@@ -154,9 +174,17 @@ def draw_button(Button_Name, mouse_over=0):
 
 
 # --------------------------- __NEW__ -------------------------- #
+
 running = True
 while running:
 
+    elapsed = round(time.time() - start)  # NEWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+    Time_Elapsed[
+        "text"
+    ] = f"Elapsed Time: {(elapsed // 60)//60 } : {elapsed // 60 } : {elapsed % 60}"  # NEWWWWWWWWWWWWWWWWWWWWWWWWW
+    time_elapsed_btn = draw_button(
+        Time_Elapsed
+    )  # NewWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
     new_game_btn = draw_button(New_Game)
     restart_game_btn = draw_button(Restart_Game)
     hint_btn = draw_button(Hint)
@@ -179,20 +207,20 @@ while running:
             if new_game_btn.collidepoint(pygame.mouse.get_pos()):
                 new_game_btn = draw_button(New_Game)
                 pygame.display.flip()
-                sleep(0.1)
+                time.sleep(0.1)
 
             elif restart_game_btn.collidepoint(pygame.mouse.get_pos()):
                 restart_game_btn = draw_button(Restart_Game)
                 pygame.display.flip()
-                sleep(0.1)
+                time.sleep(0.1)
             elif hint_btn.collidepoint(pygame.mouse.get_pos()):
                 hint_btn = draw_button(Hint)
                 pygame.display.flip()
-                sleep(0.1)
+                time.sleep(0.1)
             elif screen_shot_btn.collidepoint(pygame.mouse.get_pos()):
                 screen_shot_btn = draw_button(Screen_Shot)
                 pygame.display.flip()
-                sleep(0.1)
+                time.sleep(0.1)
                 pygame.image.save(screen, "ScreenShot.jpg")
 
     pygame.display.flip()
