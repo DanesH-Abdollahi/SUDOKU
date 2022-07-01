@@ -1,4 +1,3 @@
-from turtle import color, pos
 import pygame
 import sys
 from dokusan import generators, renderers, solvers
@@ -213,7 +212,10 @@ def draw_text(screen, text, pos, color):
     pygame.display.update()
 
 
-def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_margin, curr_sudoko_table, solution_sudoko, rects,  totall_mistakes, orginal_sudoko):
+def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_margin,
+           curr_sudoko_table, solution_sudoko, rects,  totall_mistakes, orginal_sudoko, hint_numbers, new_game_sound,
+           ss_sound, res_sound, hint_sound):
+
     i, j = position[1], position[0]
 
     i, j = (i-margin) // Vertical_diff, (j-margin) // Horizental_diff
@@ -222,10 +224,10 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
     tmp_color = np.zeros((9, 9), dtype=tuple)
 
     if i > 8 or j > 8:
-        return totall_mistakes, tmp
+        return totall_mistakes, tmp, hint_numbers
 
     if (tmp[i][j] != 0):
-        return totall_mistakes, tmp,
+        return totall_mistakes, tmp, hint_numbers
 
     new_rect(screen, rects[9*i + j], BLACK, (173, 216, 230), 3,
              Horizental_diff, Vertical_diff, margin, bottom_margin)
@@ -260,41 +262,51 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
                 sys.exit()
 
             if event.type == pygame.MOUSEBUTTONUP:
-                if hint_btn.collidepoint(pygame.mouse.get_pos()):
+                if hint_btn.collidepoint(pygame.mouse.get_pos()) and hint_numbers < 3:
                     hint_btn = draw_button(Hint, screen=screen)
                     pygame.display.flip()
                     sleep(0.1)
+                    # hint_sound = pygame.mixer.Sound("Hint.wav")
+                    hint_sound.play()
+
                     tmp = hint_func(screen, position, tmp, solution_sudoko,
                                     rects, Horizental_diff, Vertical_diff)
+
+                    hint_numbers += 1
+
                     tmp_color[i][j] = GREEN
                     new_rect(screen, rects[9*i + j], BLACK, MY_COLOR, 3,
                              Horizental_diff, Vertical_diff, margin, bottom_margin)
                     draw_text(screen, str(tmp[i][j]),
                               rects[9*i + j].center, tmp_color[i][j])
 
-                    return totall_mistakes, tmp
+                    return totall_mistakes, tmp, hint_numbers
 
                 elif new_game_btn.collidepoint(pygame.mouse.get_pos()):
                     new_game_btn = draw_button(New_Game, screen=screen)
                     pygame.display.flip()
+                    new_game_sound.play()
                     sleep(0.1)
                     main()
 
                 elif restart_game_btn.collidepoint(pygame.mouse.get_pos()):
                     restart_game_btn = draw_button(Restart_Game, screen=screen)
                     pygame.display.flip()
+                    res_sound.play()
                     sleep(0.1)
                     main(orginal_sudoko)
 
                 elif screen_shot_btn.collidepoint(pygame.mouse.get_pos()):
                     screen_shot_btn = draw_button(Screen_Shot, screen=screen)
                     pygame.display.flip()
-                    sleep(0.1)
+                    # ss_sound = pygame.mixer.Sound("ScreenShot.wav")
+                    ss_sound.play()
                     pygame.image.save(screen, "ScreenShot.jpg")
+                    sleep(0.1)
 
             if event.type == pygame.KEYDOWN:
                 if (curr_sudoko_table[i][j] != 0):
-                    return totall_mistakes, tmp
+                    return totall_mistakes, tmp, hint_numbers
 
                 if(event.key == 8):
                     new_rect(screen, rects[9*i + j], BLACK,  (173, 216, 230), 3,
@@ -319,7 +331,7 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
                             draw_text(screen, str(tmp[i][j]),
                                       rects[9*i + j].center, tmp_color[i][j])
 
-                            return totall_mistakes, tmp
+                            return totall_mistakes, tmp, hint_numbers
 
                         else:
                             draw_text(screen, str(event.key - 48),
@@ -348,7 +360,7 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
                             draw_text(screen, str(tmp[i][j]),
                                       rects[9*i + j].center, tmp_color[i][j])
 
-                            return totall_mistakes, tmp
+                            return totall_mistakes, tmp, hint_numbers
 
                         else:
                             draw_text(screen, str(event.key - 1073741922 + 10),
@@ -369,15 +381,20 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
                     new_rect(screen, rects[9*i + j], BLACK, MY_COLOR, 3,
                              Horizental_diff, Vertical_diff, margin, bottom_margin)
 
-                    totall_mistakes, tmp = insert(screen, pos, margin, Horizental_diff, Vertical_diff, bottom_margin,
-                                                  tmp, solution_sudoko, rects,  totall_mistakes, orginal_sudoko)
+                    totall_mistakes, tmp, hint_numbers = insert(screen, pos, margin, Horizental_diff, Vertical_diff, bottom_margin,
+                                                                tmp, solution_sudoko, rects,  totall_mistakes,
+                                                                orginal_sudoko, hint_numbers, new_game_sound,
+                                                                ss_sound, res_sound, hint_sound)
 
-                    return totall_mistakes, tmp
+                    return totall_mistakes, tmp, hint_numbers
 
 
 def add_grid(screen, initial_sudoko=np.zeros((9, 9), dtype=int)):
     margin = Width // 80
-    bottom_margin = 15 * margin
+    # bottom_margin = 15 * margin
+
+    bottom_margin = Margin + 3 * Button_Height + 6 * \
+        Button_Border + 3 * Vertical_Space_Between_Buttons
 
     Horizental_diff = (Width - 2 * margin) // 9
     Vertical_diff = (Height - margin - bottom_margin) // 9
@@ -466,6 +483,8 @@ def hint_func(screen, position, temp, solution, rects, Horizental_diff, Vertical
 
 def main(initial_sudoko=np.zeros((9, 9), dtype=int)):
     pygame.init()
+    pygame.mixer.init()
+
     screen = pygame.display.set_mode(SIZE)
     pygame.display.set_caption("SUDOKU")
     screen.fill(background_color)
@@ -474,7 +493,13 @@ def main(initial_sudoko=np.zeros((9, 9), dtype=int)):
     orginal_sudoko, solution_sudoko, margin, Horizental_diff, Vertical_diff, bottom_margin, rects = add_grid(
         screen, initial_sudoko)
 
+    ss_sound = pygame.mixer.Sound("ScreenShot.wav")
+    new_game_sound = pygame.mixer.Sound("NewGame.wav")
+    res_sound = pygame.mixer.Sound("ResSound.wav")
+    hint_sound = pygame.mixer.Sound("Hint.wav")
+
     totall_mistakes = 0
+    hint_numbers = 0
     tmp = orginal_sudoko.copy()
 
     while True:
@@ -505,34 +530,69 @@ def main(initial_sudoko=np.zeros((9, 9), dtype=int)):
                     pos = pygame.mouse.get_pos()
 
                     if (margin < pos[1] < Height - bottom_margin) and (margin < pos[0] < Width - margin):
-                        totall_mistakes, tmp = insert(screen, pos, margin, Horizental_diff, Vertical_diff,
-                                                      bottom_margin, tmp, solution_sudoko, rects,
-                                                      totall_mistakes,  orginal_sudoko)
+                        totall_mistakes, tmp, hint_numbers = insert(screen, pos, margin, Horizental_diff, Vertical_diff,
+                                                                    bottom_margin, tmp, solution_sudoko, rects,
+                                                                    totall_mistakes,  orginal_sudoko, hint_numbers, new_game_sound,
+                                                                    ss_sound, res_sound, hint_sound)
                         tmp = tmp
 
+                    elif new_game_btn.collidepoint(pygame.mouse.get_pos()):
+                        new_game_btn = draw_button(New_Game, screen=screen)
+                        pygame.display.flip()
+                        new_game_sound.play()
+                        sleep(0.1)
+                        main()
+
+                    elif restart_game_btn.collidepoint(pygame.mouse.get_pos()):
+                        restart_game_btn = draw_button(
+                            Restart_Game, screen=screen)
+                        pygame.display.flip()
+                        res_sound.play()
+                        sleep(0.1)
+                        main(orginal_sudoko)
+
+                    elif screen_shot_btn.collidepoint(pygame.mouse.get_pos()):
+                        screen_shot_btn = draw_button(
+                            Screen_Shot, screen=screen)
+                        pygame.display.flip()
+                        ss_sound.play()
+                        pygame.image.save(screen, "ScreenShot.jpg")
+                        sleep(0.1)
+
             else:
+
+                # pygame.display.set_caption("SUDOKU")
+                # game_over_screen.fill(CYAN)
+                # pygame.display.update()
+
+                # while True:
+                #     for event in pygame.event.get():
+                #         pass
+
                 pygame.quit()
                 sys.exit()
 
-            if event.type == pygame.MOUSEBUTTONUP:
+            # if event.type == pygame.MOUSEBUTTONUP:
 
-                if new_game_btn.collidepoint(pygame.mouse.get_pos()):
-                    new_game_btn = draw_button(New_Game, screen=screen)
-                    pygame.display.flip()
-                    sleep(0.1)
-                    main()
+            #     if new_game_btn.collidepoint(pygame.mouse.get_pos()):
+            #         new_game_btn = draw_button(New_Game, screen=screen)
+            #         pygame.display.flip()
+            #         sleep(0.1)
+            #         main()
 
-                elif restart_game_btn.collidepoint(pygame.mouse.get_pos()):
-                    restart_game_btn = draw_button(Restart_Game, screen=screen)
-                    pygame.display.flip()
-                    sleep(0.1)
-                    main(orginal_sudoko)
+            #     elif restart_game_btn.collidepoint(pygame.mouse.get_pos()):
+            #         restart_game_btn = draw_button(Restart_Game, screen=screen)
+            #         pygame.display.flip()
+            #         sleep(0.1)
+            #         main(orginal_sudoko)
 
-                elif screen_shot_btn.collidepoint(pygame.mouse.get_pos()):
-                    screen_shot_btn = draw_button(Screen_Shot, screen=screen)
-                    pygame.display.flip()
-                    sleep(0.1)
-                    pygame.image.save(screen, "ScreenShot.jpg")
+            #     elif screen_shot_btn.collidepoint(pygame.mouse.get_pos()):
+            #         screen_shot_btn = draw_button(Screen_Shot, screen=screen)
+            #         pygame.display.flip()
+            #         ss_sound = pygame.mixer.Sound("ScreenShot.wav")
+            #         ss_sound.play()
+            #         pygame.image.save(screen, "ScreenShot.jpg")
+            #         sleep(0.1)
 
         pygame.display.flip()
 
