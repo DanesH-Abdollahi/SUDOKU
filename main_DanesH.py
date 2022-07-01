@@ -255,6 +255,14 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
 
     while True:
 
+        # for iii in range(9):
+        #     for jjj in range(9):
+        #         print(tmp[iii,jjj] , end=" ")
+        #     print("\n")
+
+        # if is_solved(tmp, solution_sudoko):
+        #     print("Yeees")
+
         elapsed = round(time() - start) - 1
         Time_Elapsed[
             "text"
@@ -300,7 +308,7 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
                     # hint_sound = pygame.mixer.Sound("Hint.wav")
                     hint_sound.play()
 
-                    tmp = hint_func(screen, position, tmp, solution_sudoko,
+                    tmp = hint_func(screen, position, tmp, tmp_color,  solution_sudoko,
                                     rects, Horizental_diff, Vertical_diff)
 
                     hint_numbers += 1
@@ -450,7 +458,7 @@ def add_grid(screen, difficulty, initial_sudoko=np.zeros((9, 9), dtype=int)):
 def add_sudoko_table(screen, Horizental_diff, Vertical_diff, margin, rects, bottom_margin, difficulty, initial_sudoko=np.zeros((9, 9), dtype=int)):
 
     if difficulty == 1:
-        sudoku = generators.random_sudoku(avg_rank=25)
+        sudoku = generators.random_sudoku(avg_rank=5)
     elif difficulty == 2:
         sudoku = generators.random_sudoku(avg_rank=70)
     elif difficulty == 3:
@@ -494,7 +502,7 @@ def is_valid(tmp, solution):
     return True
 
 
-def hint_func(screen, position, temp, solution, rects, Horizental_diff, Vertical_diff):
+def hint_func(screen, position, temp, tmp_color, solution, rects, Horizental_diff, Vertical_diff):
 
     font = pygame.font.SysFont('Comic Sans MS', 70)
     i, j = position[1], position[0]
@@ -503,7 +511,7 @@ def hint_func(screen, position, temp, solution, rects, Horizental_diff, Vertical
     if i > 8 or j > 8:
         return temp
 
-    if(temp[i, j] != 0):
+    if(temp[i, j] != 0 and tmp_color[i][j] == GREEN):
         return temp
 
     pos = rects[9*i + j].center
@@ -517,6 +525,20 @@ def hint_func(screen, position, temp, solution, rects, Horizental_diff, Vertical
     return temp
 
 
+def is_solved(curr_sudoku, solution):
+    for i in range(9):
+        for j in range(9):
+            if curr_sudoku[i, j] != solution[i, j]:
+                return False
+
+    return True
+
+    # if curr_sudoku.tolist() == solution.tolist():
+    #     return True
+
+    # return False
+
+
 def main(initial_sudoko=np.zeros((9, 9), dtype=int)):
     # size = SIZE
     pygame.init()
@@ -528,6 +550,19 @@ def main(initial_sudoko=np.zeros((9, 9), dtype=int)):
     res_sound = pygame.mixer.Sound("ResSound.wav")
     hint_sound = pygame.mixer.Sound("Hint.wav")
     gameover_sound = pygame.mixer.Sound("GameOver.wav")
+    win_sound = pygame.mixer.Sound("Win.wav")
+
+    def sudoku_solved(screen):
+        menu = pygame_menu.Menu(
+            "Congratulations !", SIZE[0], SIZE[1], theme=pygame_menu.themes.THEME_SOLARIZED)
+
+        def play():
+            main()
+
+        menu.add.button("Play", play)
+        menu.add.button("Quit", pygame_menu.events.EXIT)
+        menu.mainloop(screen)
+        pygame.display.update()
 
     def game_over(screen, orginal_sudoku):
         menu = pygame_menu.Menu(
@@ -592,6 +627,11 @@ def main(initial_sudoko=np.zeros((9, 9), dtype=int)):
                 screen_shot_btn = draw_button(
                     Screen_Shot, mouse_over=1, screen=screen)
 
+            if is_solved(tmp, solution_sudoko):
+                win_sound.play()
+                sleep(1)
+                sudoku_solved(screen)
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -642,6 +682,7 @@ def main(initial_sudoko=np.zeros((9, 9), dtype=int)):
                 else:
                     # print("Umaadam")
                     gameover_sound.play()
+                    sleep(1)
                     game_over(screen, orginal_sudoko)
                     # print("Umaadam")
                     # pygame.quit()
