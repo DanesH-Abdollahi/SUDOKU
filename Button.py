@@ -156,19 +156,6 @@ def draw_button(Button_Name, mouse_over=0):
 # --------------------------- __NEW__ -------------------------- #
 running = True
 while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-
-        elif event.type == MOUSEBUTTONDOWN:
-            if new_game_btn.collidepoint(pygame.mouse.get_pos()):
-                pass
-            elif restart_game_btn.collidepoint(pygame.mouse.get_pos()):
-                pass
-            elif hint_btn.collidepoint(pygame.mouse.get_pos()):
-                pass
-            elif screen_shot_btn.collidepoint(pygame.mouse.get_pos()):
-                pygame.image.save(screen, "ScreenShot.jpg")
 
     new_game_btn = draw_button(New_Game)
     restart_game_btn = draw_button(Restart_Game)
@@ -183,6 +170,30 @@ while running:
         hint_btn = draw_button(Hint, mouse_over=1)
     elif screen_shot_btn.collidepoint(pygame.mouse.get_pos()):
         screen_shot_btn = draw_button(Screen_Shot, mouse_over=1)
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+        elif event.type == MOUSEBUTTONDOWN:
+            if new_game_btn.collidepoint(pygame.mouse.get_pos()):
+                new_game_btn = draw_button(New_Game)
+                pygame.display.flip()
+                sleep(0.1)
+
+            elif restart_game_btn.collidepoint(pygame.mouse.get_pos()):
+                restart_game_btn = draw_button(Restart_Game)
+                pygame.display.flip()
+                sleep(0.1)
+            elif hint_btn.collidepoint(pygame.mouse.get_pos()):
+                hint_btn = draw_button(Hint)
+                pygame.display.flip()
+                sleep(0.1)
+            elif screen_shot_btn.collidepoint(pygame.mouse.get_pos()):
+                screen_shot_btn = draw_button(Screen_Shot)
+                pygame.display.flip()
+                sleep(0.1)
+                pygame.image.save(screen, "ScreenShot.jpg")
 
     pygame.display.flip()
 
