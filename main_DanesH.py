@@ -1,4 +1,3 @@
-from turtle import onclick, onscreenclick
 import pygame
 import sys
 from dokusan import generators, renderers, solvers
@@ -548,7 +547,7 @@ def main(initial_sudoko=np.zeros((9, 9), dtype=int)):
         pygame.display.update()
 
     def start_the_game(difficulty=1):
-        print(difficulty)
+        # print(difficulty)
         size = SIZE
         # pygame.init()
         # pygame.mixer.init()
