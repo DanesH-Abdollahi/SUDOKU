@@ -1,3 +1,4 @@
+from turtle import onclick, onscreenclick
 import pygame
 import sys
 from dokusan import generators, renderers, solvers
@@ -264,8 +265,9 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
         )
 
         if totall_mistakes >= 3:
-            pygame.quit()
-            sys.exit()
+            return totall_mistakes, tmp, hint_numbers
+            # pygame.quit()
+            # sys.exit()
 
         new_game_btn = draw_button(New_Game, screen=screen)
         restart_game_btn = draw_button(Restart_Game, screen=screen)
@@ -516,7 +518,7 @@ def hint_func(screen, position, temp, solution, rects, Horizental_diff, Vertical
     return temp
 
 
-def main(initial_sudoko=np.zeros((9, 9), dtype=int),):
+def main(initial_sudoko=np.zeros((9, 9), dtype=int)):
     # size = SIZE
     pygame.init()
     pygame.mixer.init()
@@ -526,6 +528,24 @@ def main(initial_sudoko=np.zeros((9, 9), dtype=int),):
     new_game_sound = pygame.mixer.Sound("NewGame.wav")
     res_sound = pygame.mixer.Sound("ResSound.wav")
     hint_sound = pygame.mixer.Sound("Hint.wav")
+    gameover_sound = pygame.mixer.Sound("GameOver.wav")
+
+    def game_over(screen, orginal_sudoku):
+        menu = pygame_menu.Menu(
+            "Game Over", SIZE[0], SIZE[1], theme=pygame_menu.themes.THEME_SOLARIZED)
+
+        def reset():
+            res_sound.play()
+            main(orginal_sudoku)
+
+        def play():
+            main()
+
+        menu.add.button("Play", play)
+        menu.add.button("Reset", reset)
+        menu.add.button("Quit", pygame_menu.events.EXIT)
+        menu.mainloop(screen)
+        pygame.display.update()
 
     def start_the_game(difficulty=1):
         print(difficulty)
@@ -621,17 +641,12 @@ def main(initial_sudoko=np.zeros((9, 9), dtype=int),):
                             sleep(0.1)
 
                 else:
-
-                    # pygame.display.set_caption("SUDOKU")
-                    # game_over_screen.fill(CYAN)
-                    # pygame.display.update()
-
-                    # while True:
-                    #     for event in pygame.event.get():
-                    #         pass
-
-                    pygame.quit()
-                    sys.exit()
+                    # print("Umaadam")
+                    gameover_sound.play()
+                    game_over(screen, orginal_sudoko)
+                    # print("Umaadam")
+                    # pygame.quit()
+                    # sys.exit()
 
             pygame.display.flip()
 
