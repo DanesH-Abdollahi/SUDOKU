@@ -10,7 +10,7 @@ from GameFunctions import *
 
 def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_margin,
            curr_sudoko_table, solution_sudoko, rects,  totall_mistakes, orginal_sudoko, hint_numbers, new_game_sound,
-           ss_sound, res_sound, hint_sound, start, correct_sound, mistake_sound):
+           ss_sound, res_sound, hint_sound, start, correct_sound, mistake_sound, is_muted):
 
     i, j = position[1], position[0]
 
@@ -20,10 +20,10 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
     tmp_color = np.zeros((9, 9), dtype=tuple)
 
     if i > 8 or j > 8:
-        return totall_mistakes, tmp, hint_numbers
+        return totall_mistakes, tmp, hint_numbers, is_muted
 
     if (tmp[i][j] != 0):
-        return totall_mistakes, tmp, hint_numbers
+        return totall_mistakes, tmp, hint_numbers, is_muted
 
     new_rect(screen, rects[9*i + j], BLACK, (173, 216, 230), 1,
              Horizental_diff, Vertical_diff, margin, bottom_margin)
@@ -46,7 +46,7 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
                 Errors_Happened, screen=screen
             )
             pygame.display.update()
-            return totall_mistakes, tmp, hint_numbers
+            return totall_mistakes, tmp, hint_numbers, is_muted
 
         Errors_Happened[
             "text"
@@ -67,6 +67,7 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
         new_game_btn = draw_button(New_Game, screen=screen)
         restart_game_btn = draw_button(Restart_Game, screen=screen)
         screen_shot_btn = draw_button(Screen_Shot, screen=screen)
+        mute_btn = draw_button(Mute, screen=screen)
 
         if new_game_btn.collidepoint(pygame.mouse.get_pos()):
             new_game_btn = draw_button(New_Game, mouse_over=1, screen=screen)
@@ -103,7 +104,8 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
 
                     pygame.display.flip()
                     sleep(0.1)
-                    hint_sound.play()
+                    if not(is_muted):
+                        hint_sound.play()
 
                     tmp = hint_func(screen, position, tmp, tmp_color,  solution_sudoko,
                                     rects, Horizental_diff, Vertical_diff)
@@ -116,12 +118,13 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
                     draw_text(screen, str(tmp[i][j]),
                               rects[9*i + j].center, tmp_color[i][j])
 
-                    return totall_mistakes, tmp, hint_numbers
+                    return totall_mistakes, tmp, hint_numbers, is_muted
 
                 elif new_game_btn.collidepoint(pygame.mouse.get_pos()):
                     new_game_btn = draw_button(New_Game, screen=screen)
                     pygame.display.flip()
-                    new_game_sound.play()
+                    if not(is_muted):
+                        new_game_sound.play()
                     sleep(0.1)
 
                     main()
@@ -129,14 +132,16 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
                 elif restart_game_btn.collidepoint(pygame.mouse.get_pos()):
                     restart_game_btn = draw_button(Restart_Game, screen=screen)
                     pygame.display.flip()
-                    res_sound.play()
+                    if not(is_muted):
+                        res_sound.play()
                     sleep(0.1)
                     main(orginal_sudoko)
 
                 elif screen_shot_btn.collidepoint(pygame.mouse.get_pos()):
                     screen_shot_btn = draw_button(Screen_Shot, screen=screen)
                     pygame.display.flip()
-                    ss_sound.play()
+                    if not(is_muted):
+                        ss_sound.play()
 
                     file = easygui.filesavebox(
                         title="Browser",
@@ -146,12 +151,24 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
                     )
                     if file != None:
                         pygame.image.save(screen, f"{file}.jpg")
-
                     sleep(0.1)
+
+                elif mute_btn.collidepoint(pygame.mouse.get_pos()):
+                    is_muted = not (is_muted)
+                    if is_muted == 1:
+                        Mute["text"] = "Muted"
+                        mute_btn = draw_button(
+                            Mute, screen=screen
+                        )
+                    elif is_muted == 0:
+                        Mute["text"] = "Unmuted"
+                        mute_btn = draw_button(
+                            Mute, screen=screen
+                        )
 
             if event.type == pygame.KEYDOWN:
                 if (curr_sudoko_table[i][j] != 0):
-                    return totall_mistakes, tmp, hint_numbers
+                    return totall_mistakes, tmp, hint_numbers, is_muted
 
                 if(event.key == 8):
                     new_rect(screen, rects[9*i + j], BLACK,  (173, 216, 230), 1,
@@ -164,7 +181,8 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
                                  Horizental_diff, Vertical_diff, margin, bottom_margin)
 
                         if (event.key - 48) == solution_sudoko[i][j]:
-                            correct_sound.play()
+                            if not(is_muted):
+                                correct_sound.play()
                             draw_text(screen, str(event.key - 48),
                                       rects[9*i + j].center, GREEN)
                             tmp[i][j] = event.key - 48
@@ -174,7 +192,7 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
                             draw_text(screen, str(tmp[i][j]),
                                       rects[9*i + j].center, tmp_color[i][j])
 
-                            return totall_mistakes, tmp, hint_numbers
+                            return totall_mistakes, tmp, hint_numbers, is_muted
 
                         else:
                             draw_text(screen, str(event.key - 48),
@@ -184,7 +202,8 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
                             tmp_color[i][j] = RED
                             totall_mistakes += 1
                             if totall_mistakes < 3:
-                                mistake_sound.play()
+                                if not(is_muted):
+                                    mistake_sound.play()
 
                 if(0 < event.key - 1073741922 + 10 < 10):
                     if (event.key - 1073741922 + 10 != tmp[i][j]):
@@ -192,7 +211,8 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
                                  Horizental_diff, Vertical_diff, margin, bottom_margin)
 
                         if (event.key - 1073741922 + 10) == solution_sudoko[i][j]:
-                            correct_sound.play()
+                            if not(is_muted):
+                                correct_sound.play()
                             draw_text(screen, str(event.key - 1073741922 + 10),
                                       rects[9*i + j].center, GREEN)
                             tmp[i][j] = event.key - 1073741922 + 10
@@ -202,7 +222,7 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
                             draw_text(screen, str(tmp[i][j]),
                                       rects[9*i + j].center, tmp_color[i][j])
 
-                            return totall_mistakes, tmp, hint_numbers
+                            return totall_mistakes, tmp, hint_numbers, is_muted
 
                         else:
                             draw_text(screen, str(event.key - 1073741922 + 10),
@@ -212,7 +232,8 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
                             tmp_color[i][j] = RED
                             totall_mistakes += 1
                             if totall_mistakes < 3:
-                                mistake_sound.play()
+                                if not(is_muted):
+                                    mistake_sound.play()
 
             if event.type == pygame.MOUSEBUTTONUP and is_valid(tmp, solution_sudoko):
                 pos = pygame.mouse.get_pos()
@@ -224,20 +245,21 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
                     new_rect(screen, rects[9*i + j], BLACK, MY_COLOR, 1,
                              Horizental_diff, Vertical_diff, margin, bottom_margin)
 
-                    totall_mistakes, tmp, hint_numbers = insert(screen, pos, margin, Horizental_diff, Vertical_diff, bottom_margin,
-                                                                tmp, solution_sudoko, rects,  totall_mistakes,
-                                                                orginal_sudoko, hint_numbers, new_game_sound,
-                                                                ss_sound, res_sound, hint_sound, start, correct_sound, mistake_sound)
+                    totall_mistakes, tmp, hint_numbers, is_muted = insert(screen, pos, margin, Horizental_diff, Vertical_diff, bottom_margin,
+                                                                          tmp, solution_sudoko, rects,  totall_mistakes,
+                                                                          orginal_sudoko, hint_numbers, new_game_sound,
+                                                                          ss_sound, res_sound, hint_sound, start, correct_sound, mistake_sound, is_muted)
 
-                    return totall_mistakes, tmp, hint_numbers
+                    return totall_mistakes, tmp, hint_numbers, is_muted
 
 
-def game_over(screen, orginal_sudoku):
+def game_over(screen, orginal_sudoku, is_muted):
     menu = pygame_menu.Menu(
         "Game Over", SIZE[0], SIZE[1], theme=pygame_menu.themes.THEME_SOLARIZED)
 
     def reset():
-        res_sound.play()
+        if not(is_muted):
+            res_sound.play()
         main(orginal_sudoku)
 
     def play():
@@ -263,7 +285,8 @@ def sudoku_solved(screen):
     pygame.display.update()
 
 
-def start_the_game(initial_sudoko, difficulty=1):
+def start_the_game(initial_sudoko, is_muted, difficulty=1):
+
     size = SIZE
     screen = pygame.display.set_mode(size, pygame.HWSURFACE)
     pygame.display.set_caption("SUDOKU")
@@ -280,7 +303,7 @@ def start_the_game(initial_sudoko, difficulty=1):
 
     Remaining_Hints_Num = 3
     Remaining_Hints["text"] = f"Remaining Hints: {Remaining_Hints_Num}"
-    remaining_hints_btn = draw_button(Remaining_Hints, screen=screen)
+    draw_button(Remaining_Hints, screen=screen)
 
     while True:
 
@@ -302,8 +325,8 @@ def start_the_game(initial_sudoko, difficulty=1):
         new_game_btn = draw_button(New_Game, screen=screen)
         restart_game_btn = draw_button(Restart_Game, screen=screen)
         screen_shot_btn = draw_button(Screen_Shot, screen=screen)
-
-        remaining_hints_btn = draw_button(Remaining_Hints, screen=screen)
+        mute_btn = draw_button(Mute, screen=screen)
+        draw_button(Remaining_Hints, screen=screen)
         Remaining_Hints_Num = 3 - hint_numbers
         if Remaining_Hints_Num == 0:
             hint_btn = draw_button(Hint, screen=screen, mouse_over=1)
@@ -325,7 +348,8 @@ def start_the_game(initial_sudoko, difficulty=1):
                 Screen_Shot, mouse_over=1, screen=screen)
 
         if is_solved(tmp, solution_sudoko):
-            win_sound.play()
+            if not(is_muted):
+                win_sound.play()
             sleep(1)
             sudoku_solved(screen)
 
@@ -339,16 +363,18 @@ def start_the_game(initial_sudoko, difficulty=1):
                     pos = pygame.mouse.get_pos()
 
                     if (margin < pos[1] < Height - bottom_margin) and (margin < pos[0] < Width - margin):
-                        totall_mistakes, tmp, hint_numbers = insert(screen, pos, margin, Horizental_diff, Vertical_diff,
-                                                                    bottom_margin, tmp, solution_sudoko, rects,
-                                                                    totall_mistakes,  orginal_sudoko, hint_numbers, new_game_sound,
-                                                                    ss_sound, res_sound, hint_sound, start, correct_sound, mistake_sound)
+                        totall_mistakes, tmp, hint_numbers, is_muted = insert(screen, pos, margin, Horizental_diff, Vertical_diff,
+                                                                              bottom_margin, tmp, solution_sudoko, rects,
+                                                                              totall_mistakes,  orginal_sudoko, hint_numbers, new_game_sound,
+                                                                              ss_sound, res_sound, hint_sound, start, correct_sound,
+                                                                              mistake_sound, is_muted)
                         tmp = tmp
 
                     elif new_game_btn.collidepoint(pygame.mouse.get_pos()):
                         new_game_btn = draw_button(New_Game, screen=screen)
                         pygame.display.flip()
-                        new_game_sound.play()
+                        if not(is_muted):
+                            new_game_sound.play()
                         sleep(0.1)
                         main()
 
@@ -356,7 +382,8 @@ def start_the_game(initial_sudoko, difficulty=1):
                         restart_game_btn = draw_button(
                             Restart_Game, screen=screen)
                         pygame.display.flip()
-                        res_sound.play()
+                        if not(is_muted):
+                            res_sound.play()
                         sleep(0.1)
                         main(orginal_sudoko)
 
@@ -364,7 +391,8 @@ def start_the_game(initial_sudoko, difficulty=1):
                         screen_shot_btn = draw_button(
                             Screen_Shot, screen=screen)
                         pygame.display.flip()
-                        ss_sound.play()
+                        if not(is_muted):
+                            ss_sound.play()
                         file = easygui.filesavebox(
                             title="Browser",
                             msg="Select a folder:",
@@ -375,15 +403,31 @@ def start_the_game(initial_sudoko, difficulty=1):
                             pygame.image.save(screen, f"{file}.jpg")
                         sleep(0.1)
 
+                    elif mute_btn.collidepoint(pygame.mouse.get_pos()):
+                        is_muted = not (is_muted)
+                        if is_muted == 1:
+                            Mute["text"] = "Muted"
+                            mute_btn = draw_button(
+                                Mute, screen=screen
+                            )
+                        elif is_muted == 0:
+                            Mute["text"] = "Unmuted"
+                            mute_btn = draw_button(
+                                Mute, screen=screen
+                            )
+
             else:
-                gameover_sound.play()
+                if not(is_muted):
+                    gameover_sound.play()
                 sleep(1)
-                game_over(screen, orginal_sudoko)
+                game_over(screen, orginal_sudoko, is_muted)
 
         pygame.display.flip()
 
 
 def main(initial_sudoko=np.zeros((9, 9), dtype=int)):
+    is_muted = 0
+    Mute["text"] = "Unmuted"
     pygame.init()
     pygame.mixer.init()
     screen = pygame.display.set_mode(SIZE, pygame.HWSURFACE)
@@ -393,12 +437,13 @@ def main(initial_sudoko=np.zeros((9, 9), dtype=int)):
     Remaining_Hints["text_color_inactive"] = "#003566"
 
     if initial_sudoko.tolist() != np.zeros((9, 9), dtype=int).tolist():
-        start_the_game(initial_sudoko)
+        start_the_game(initial_sudoko, is_muted)
 
     def play_buttom():
         global Difficulty
-        res_sound.play()
-        start_the_game(initial_sudoko, difficulty=Difficulty)
+        if not(is_muted):
+            res_sound.play()
+        start_the_game(initial_sudoko, is_muted, difficulty=Difficulty)
 
     def set_difficulty(value: Tuple[Any, int], difficulty: str) -> None:
         global Difficulty

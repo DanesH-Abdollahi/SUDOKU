@@ -141,3 +141,23 @@ Errors_Happened = {
     "font": "../resources/FORTE.ttf",
     "font_size": 30,
 }
+
+Mute = {
+    "left": Width
+    - Margin
+    - 4 * Button_Border
+    - 2 * Button_Width
+    - Horizontal_Space_Between_Buttons,
+    "top": Height - Margin - Button_Border * 2 - Button_Height * 1,
+    "width": 2 * Button_Width + Horizontal_Space_Between_Buttons,
+    "height": Button_Height,
+    "border": Button_Border,
+    "color_inactive": "#bbd0ff",
+    "color_active": "#",
+    "border_color": background_color,
+    "text": "Unmuted",
+    "text_color_inactive": "#003566",
+    "text_color_active": "#",
+    "font": "../resources/FORTE.ttf",
+    "font_size": 30,
+}
