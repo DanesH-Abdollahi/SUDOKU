@@ -55,7 +55,7 @@ def screen_init():
     screen = pygame.display.set_mode(SIZE, pygame.HWSURFACE)
     pygame.display.set_icon(gameIcon)
     pygame.display.set_caption("SUDOKU")
-    return screen
+    return screen, 0, "Unmuted", "#2ec4b6", "#560bad", "#003566"
 
 
 # Define All Buttons
