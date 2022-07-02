@@ -1,6 +1,8 @@
 from InitialValues import *
+from DrawFuntions import *
 
 
+# Check if The input sudoku table is Correct or Not
 def is_valid(tmp, solution):
     for i in range(9):
         for j in range(9):
@@ -9,9 +11,8 @@ def is_valid(tmp, solution):
     return True
 
 
+# Define Hint Bottun Functionality
 def hint_func(screen, position, temp, tmp_color, solution, rects, Horizental_diff, Vertical_diff):
-
-    font = pygame.font.SysFont('Comic Sans MS', 70)
     i, j = position[1], position[0]
     i, j = (i-Margin) // Vertical_diff, (j-Margin) // Horizental_diff
 
@@ -24,13 +25,11 @@ def hint_func(screen, position, temp, tmp_color, solution, rects, Horizental_dif
     pos = rects[9*i + j].center
     text = str(solution[i, j])
     temp[i, j] = solution[i, j]
-    img = font.render(text, True, GREEN)
-    pos = img.get_rect(center=pos)
-    screen.blit(img, pos)
-    pygame.display.update()
+    draw_text(screen, text, pos, GREEN)
     return temp
 
 
+# Check if The input sudoku table is Complete or Not
 def is_solved(curr_sudoku, solution):
     if curr_sudoku.tolist() == solution.tolist():
         return True

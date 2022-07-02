@@ -1,7 +1,7 @@
 import pygame_menu.themes
 import pygame
 
-# Define Size Of The Window
+# Define The Window Size of The App
 SIZE = (720, 720)
 Width, Height = SIZE
 
@@ -30,11 +30,13 @@ Button_Height = (Height * 3) // 40
 Horizontal_Space_Between_Buttons = Width // 40
 Vertical_Space_Between_Buttons = Height // 80
 
-# Param For Checking
+# Param For Checking # Of Remaining Hints
 Remaining_Hints_Num = 3
 
+# initialize the pygame mixer
 pygame.mixer.init()
 
+# Define All Sounds & Window Icon
 gameIcon = pygame.image.load('../resources/icon.png')
 ss_sound = pygame.mixer.Sound("../resources/ScreenShot.wav")
 new_game_sound = pygame.mixer.Sound("../resources/NewGame.wav")
@@ -46,6 +48,7 @@ correct_sound = pygame.mixer.Sound("../resources/Correct.wav")
 mistake_sound = pygame.mixer.Sound("../resources/Mistake.wav")
 
 
+# initialize pygame
 def screen_init():
     pygame.init()
     pygame.mixer.init()
@@ -55,7 +58,7 @@ def screen_init():
     return screen
 
 
-# Define Buttons
+# Define All Buttons
 New_Game = {
     "left": Margin,
     "top": Height

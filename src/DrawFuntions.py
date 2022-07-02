@@ -5,26 +5,21 @@ from time import sleep
 import numpy as np
 
 
+# draw a button with specific properties
 def draw_button(Button_Name, screen,  mouse_over=0):
-    left = Button_Name["left"]
-    top = Button_Name["top"]
-    width = Button_Name["width"]
-    height = Button_Name["height"]
-    border = Button_Name["border"]
+    left, top, width, height, border, border_color, text, font, font_size = Button_Name["left"], Button_Name["top"], Button_Name["width"], Button_Name[
+        "height"], Button_Name["border"], Button_Name["border_color"], Button_Name["text"], Button_Name["font"], Button_Name["font_size"]
 
     if mouse_over == 0:
         color = Button_Name["color_inactive"]
     else:
         color = Button_Name["color_active"]
-    border_color = Button_Name["border_color"]
-    text = Button_Name["text"]
+
     if mouse_over == 0:
         text_color = Button_Name["text_color_inactive"]
     else:
         text_color = Button_Name["text_color_active"]
 
-    font = Button_Name["font"]
-    font_size = Button_Name["font_size"]
     pygame.draw.rect(
         screen,
         border_color,
@@ -38,11 +33,11 @@ def draw_button(Button_Name, screen,  mouse_over=0):
     xpos, ypos = button.center
     textbox = text.get_rect(center=(xpos, ypos))
     screen.blit(text, textbox)
-
     return button
 
 
-def new_rect(screen, rect, border_color, inner_color, border, Horizental_diff, Vertical_diff, margin, bottom_margin):
+# draw new rects
+def new_rect(screen, rect, border_color, inner_color, border, Horizental_diff, Vertical_diff, Margin, bottom_Margin):
     pygame.draw.rect(
         screen,
         border_color,
@@ -53,20 +48,19 @@ def new_rect(screen, rect, border_color, inner_color, border, Horizental_diff, V
     inner = pygame.Rect(rect.left + border, rect.top +
                         border, Horizental_diff - border, Vertical_diff - border)
     pygame.draw.rect(screen, inner_color, inner)
-
-    add_lines(screen, Horizental_diff, Vertical_diff, margin, bottom_margin)
-
+    add_lines(screen, Horizental_diff, Vertical_diff, Margin, bottom_Margin)
     pygame.display.update()
 
 
-def add_lines(screen, Horizental_diff, Vertical_diff, margin, bottom_margin):
+# draw table lines
+def add_lines(screen, Horizental_diff, Vertical_diff, Margin, bottom_Margin):
     for i in range(10):
         if(i % 3 == 0):
             pygame.draw.line(
                 screen,
                 BLACK,
-                (margin + Horizental_diff * i, margin),
-                (margin + Horizental_diff * i, Height - bottom_margin),
+                (Margin + Horizental_diff * i, Margin),
+                (Margin + Horizental_diff * i, Height - bottom_Margin),
                 5,
             )  # Draw Vertical Lines
             if i == 9:
@@ -74,36 +68,37 @@ def add_lines(screen, Horizental_diff, Vertical_diff, margin, bottom_margin):
                 pygame.draw.line(
                     screen,
                     BLACK,
-                    (margin, Height - bottom_margin),
-                    (margin + Horizental_diff * 9, Height - bottom_margin),
-                    5,)
+                    (Margin, Height - bottom_Margin),
+                    (Margin + Horizental_diff * 9, Height - bottom_Margin),
+                    5,)  # Draw Horizental Lines
             else:
                 pygame.draw.line(
                     screen,
                     BLACK,
-                    (margin, margin + Vertical_diff * i),
-                    (margin + Horizental_diff * 9, margin + Vertical_diff * i),
-                    5,)
+                    (Margin, Margin + Vertical_diff * i),
+                    (Margin + Horizental_diff * 9, Margin + Vertical_diff * i),
+                    5,)  # Draw Horizental Lines
 
         pygame.draw.line(
             screen,
             BLACK,
-            (margin + Horizental_diff * i, margin),
-            (margin + Horizental_diff * i, Height - bottom_margin),
+            (Margin + Horizental_diff * i, Margin),
+            (Margin + Horizental_diff * i, Height - bottom_Margin),
             3,
         )  # Draw Vertical Lines
 
         pygame.draw.line(
             screen,
             BLACK,
-            (margin, margin + Vertical_diff * i),
-            (margin + Horizental_diff * 9, margin + Vertical_diff * i),
+            (Margin, Margin + Vertical_diff * i),
+            (Margin + Horizental_diff * 9, Margin + Vertical_diff * i),
             3,
         )  # Draw Horizental Lines
 
     pygame.display.update()
 
 
+# draw text in a specifi Position
 def draw_text(screen, text, pos, color):
     font = pygame.font.SysFont('Comic Sans MS', 50)
     img = font.render(text, True, color)
@@ -112,33 +107,30 @@ def draw_text(screen, text, pos, color):
     pygame.display.update()
 
 
+# draw girds & Define a rect list which contains all cells as a rect
 def add_grid(screen, difficulty, initial_sudoko=np.zeros((9, 9), dtype=int)):
-    margin = Width // 80
-    bottom_margin = Margin + 3 * Button_Height + 6 * \
+    bottom_Margin = Margin + 3 * Button_Height + 6 * \
         Button_Border + 3 * Vertical_Space_Between_Buttons
-
-    Horizental_diff = (Width - 2 * margin) // 9
-    Vertical_diff = (Height - margin - bottom_margin) // 9
-
-    add_lines(screen, Horizental_diff, Vertical_diff, margin, bottom_margin)
-
+    Horizental_diff = (Width - 2 * Margin) // 9
+    Vertical_diff = (Height - Margin - bottom_Margin) // 9
+    add_lines(screen, Horizental_diff, Vertical_diff, Margin, bottom_Margin)
     Rects = []
     for i in range(9):
         for j in range(9):
-            Rects.append(pygame.Rect(margin + (j*Horizental_diff),
-                         margin + (i*Vertical_diff), Horizental_diff, Vertical_diff))
+            Rects.append(pygame.Rect(Margin + (j*Horizental_diff),
+                         Margin + (i*Vertical_diff), Horizental_diff, Vertical_diff))
 
     [pygame.draw.rect(screen, BLACK, r, 1) for r in Rects]
     pygame.display.update()
 
-    orginal_sudoko, solution_sudoko = add_sudoko_table(screen, Horizental_diff,
-                                                       Vertical_diff, margin, Rects, bottom_margin, difficulty, initial_sudoko)
+    orginal_sudoko, solution_sudoko = add_sudoku_table(screen, Horizental_diff,
+                                                       Vertical_diff, Margin, Rects, bottom_Margin, difficulty, initial_sudoko)
 
-    return orginal_sudoko, solution_sudoko, margin, Horizental_diff, Vertical_diff, bottom_margin, Rects
+    return orginal_sudoko, solution_sudoko, Margin, Horizental_diff, Vertical_diff, bottom_Margin, Rects
 
 
-def add_sudoko_table(screen, Horizental_diff, Vertical_diff, margin, rects, bottom_margin, difficulty, initial_sudoko=np.zeros((9, 9), dtype=int)):
-
+# Generate Sudoku
+def add_sudoku_table(screen, Horizental_diff, Vertical_diff, Margin, rects, bottom_Margin, difficulty, initial_sudoko=np.zeros((9, 9), dtype=int)):
     if difficulty == 1:
         sudoku = generators.random_sudoku(avg_rank=5)
     elif difficulty == 2:
@@ -161,10 +153,9 @@ def add_sudoko_table(screen, Horizental_diff, Vertical_diff, margin, rects, bott
             if (0 < sudoku_np_array[i][j] < 10):
 
                 new_rect(screen, rects[i*9 + j], BLACK,
-                         "#FFE4E1", 1, Horizental_diff, Vertical_diff, margin, bottom_margin)
+                         "#FFE4E1", 1, Horizental_diff, Vertical_diff, Margin, bottom_Margin)
                 draw_text(screen, str(
                     sudoku_np_array[i][j]), rects[i*9 + j].center, Orginal_Sudoko_number_color)
-
                 sleep(0.008)
                 pygame.display.update()
 
