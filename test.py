@@ -10,7 +10,7 @@ import pygame_menu.themes
 
 pygame.init()
 pygame.mixer.init()
-screen = pygame.display.set_mode((800, 800), pygame.RESIZABLE)
+screen = pygame.display.set_mode((700, 700), pygame.HWSURFACE)
 
 screen.fill((152, 52, 96))
 pygame.display.update()
@@ -20,3 +20,8 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
+
+        if event.type == pygame.VIDEORESIZE:
+            img = pygame.transform.scale(
+                screen, (event.w, event.h), DestSurface=None)
+            pygame.display.update()

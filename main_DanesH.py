@@ -1,4 +1,3 @@
-from tkinter.filedialog import FileDialog, asksaveasfile
 import pygame
 import sys
 from dokusan import generators, renderers, solvers
@@ -9,6 +8,7 @@ from pygame.rect import *
 import pygame_menu
 import pygame_menu.themes
 from typing import Tuple, Any
+import easygui
 
 SIZE = (720, 720)
 Width, Height = SIZE
@@ -24,6 +24,16 @@ CYAN = (0, 255, 255)
 MAGENTA = (255, 0, 255)
 MY_COLOR = (253, 245, 230)
 
+My_theme = pygame_menu.themes.THEME_SOLARIZED.copy()
+My_theme.title_font = "FORTE.ttf"
+My_theme.title_font_size = 80
+My_theme.background_color = "#f2e9e4"
+My_theme.title_offset = Width/3-Width/40, 0
+My_theme.title_bar_style = 1001
+My_theme.widget_font_size = 50
+My_theme.widget_font = "FORTE.ttf"
+
+
 Orginal_Sudoko_number_color = (25, 25, 112)
 background_color = MY_COLOR
 
@@ -36,6 +46,7 @@ Button_Width = int(Width / 5)
 Button_Height = int(Height * 3 / 40)
 Horizontal_Space_Between_Buttons = int(Width / 40)
 Vertical_Space_Between_Buttons = int(Height / 80)
+
 New_Game = {
     "left": Margin,
     "top": Height
@@ -307,14 +318,6 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
 
     while True:
 
-        # for iii in range(9):
-        #     for jjj in range(9):
-        #         print(tmp[iii,jjj] , end=" ")
-        #     print("\n")
-
-        # if is_solved(tmp, solution_sudoko):
-        #     print("Yeees")
-
         elapsed = round(time() - start) - 1
         Time_Elapsed[
             "text"
@@ -341,7 +344,6 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
         )
 
         Remaining_Hints_Num = 3 - hint_numbers
-        # hint_btn = draw_button(Hint, screen=screen)
         if Remaining_Hints_Num == 0:
             hint_btn = draw_button(Hint, screen=screen, mouse_over=1)
             Remaining_Hints["text_color_inactive"] = RED
@@ -352,7 +354,6 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
 
         new_game_btn = draw_button(New_Game, screen=screen)
         restart_game_btn = draw_button(Restart_Game, screen=screen)
-        # hint_btn = draw_button(Hint, screen=screen)
         screen_shot_btn = draw_button(Screen_Shot, screen=screen)
 
         if new_game_btn.collidepoint(pygame.mouse.get_pos()):
@@ -422,9 +423,17 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
                 elif screen_shot_btn.collidepoint(pygame.mouse.get_pos()):
                     screen_shot_btn = draw_button(Screen_Shot, screen=screen)
                     pygame.display.flip()
-                    # ss_sound = pygame.mixer.Sound("ScreenShot.wav")
                     ss_sound.play()
-                    pygame.image.save(screen, "ScreenShot.jpg")
+
+                    file = easygui.filesavebox(
+                        title="Browser",
+                        msg="Select a folder:",
+                        filetypes=["*.jpg"],
+                        default="Sudoku Screenshot",
+                    )
+                    if file != None:
+                        pygame.image.save(screen, f"{file}.jpg")
+
                     sleep(0.1)
 
             if event.type == pygame.KEYDOWN:
@@ -437,8 +446,6 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
                     tmp[i][j] = 0
 
                 if(0 < event.key - 48 < 10):
-                    # new_rect(screen, rects[9*i + j], BLACK, MY_COLOR, 3,
-                    #          Horizental_diff, Vertical_diff, margin, bottom_margin)
                     if (event.key - 48 != tmp[i][j]):
                         new_rect(screen, rects[9*i + j], BLACK, (173, 216, 230), 1,
                                  Horizental_diff, Vertical_diff, margin, bottom_margin)
@@ -447,7 +454,6 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
                             correct_sound.play()
                             draw_text(screen, str(event.key - 48),
                                       rects[9*i + j].center, GREEN)
-                            # orginal_sudoko[i][j] = event.key - 48
                             tmp[i][j] = event.key - 48
                             tmp_color[i][j] = GREEN
                             new_rect(screen, rects[9*i + j], BLACK, MY_COLOR, 1,
@@ -468,9 +474,6 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
                                 mistake_sound.play()
 
                 if(0 < event.key - 1073741922 + 10 < 10):
-                    # new_rect(screen, rects[9*i + j], BLACK, MY_COLOR, 3,
-                    #          Horizental_diff, Vertical_diff, margin, bottom_margin)
-
                     if (event.key - 1073741922 + 10 != tmp[i][j]):
                         new_rect(screen, rects[9*i + j], BLACK, (173, 216, 230), 1,
                                  Horizental_diff, Vertical_diff, margin, bottom_margin)
@@ -479,7 +482,6 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
                             correct_sound.play()
                             draw_text(screen, str(event.key - 1073741922 + 10),
                                       rects[9*i + j].center, GREEN)
-                            # orginal_sudoko[i][j] = event.key - 1073741922 + 10
                             tmp[i][j] = event.key - 1073741922 + 10
                             tmp_color[i][j] = GREEN
                             new_rect(screen, rects[9*i + j], BLACK, MY_COLOR, 1,
@@ -499,7 +501,6 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
                             if totall_mistakes < 3:
                                 mistake_sound.play()
 
-            # print(i, j)
             if event.type == pygame.MOUSEBUTTONUP and is_valid(tmp, solution_sudoko):
                 pos = pygame.mouse.get_pos()
                 new_i, new_j = pos[1], pos[0]
@@ -520,8 +521,6 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
 
 def add_grid(screen, difficulty, initial_sudoko=np.zeros((9, 9), dtype=int)):
     margin = Width // 80
-    # bottom_margin = 15 * margin
-
     bottom_margin = Margin + 3 * Button_Height + 6 * \
         Button_Border + 3 * Vertical_Space_Between_Buttons
 
@@ -548,7 +547,7 @@ def add_grid(screen, difficulty, initial_sudoko=np.zeros((9, 9), dtype=int)):
 def add_sudoko_table(screen, Horizental_diff, Vertical_diff, margin, rects, bottom_margin, difficulty, initial_sudoko=np.zeros((9, 9), dtype=int)):
 
     if difficulty == 1:
-        sudoku = generators.random_sudoku(avg_rank=5)
+        sudoku = generators.random_sudoku(avg_rank=25)
     elif difficulty == 2:
         sudoku = generators.random_sudoku(avg_rank=70)
     elif difficulty == 3:
@@ -623,18 +622,12 @@ def is_solved(curr_sudoku, solution):
 
     return True
 
-    # if curr_sudoku.tolist() == solution.tolist():
-    #     return True
-
-    # return False
-
 
 def main(initial_sudoko=np.zeros((9, 9), dtype=int)):
-    # size = SIZE
     pygame.init()
     pygame.mixer.init()
-    screen = pygame.display.set_mode(SIZE, pygame.RESIZABLE)
-    gameIcon = pygame.image.load('Icon.png')
+    screen = pygame.display.set_mode(SIZE, pygame.HWSURFACE)
+    gameIcon = pygame.image.load('icon.png')
     pygame.display.set_icon(gameIcon)
     pygame.display.set_caption("SUDOKU")
 
@@ -679,12 +672,8 @@ def main(initial_sudoko=np.zeros((9, 9), dtype=int)):
         pygame.display.update()
 
     def start_the_game(difficulty=1):
-        # print(difficulty)
         size = SIZE
-        # pygame.init()
-        # pygame.mixer.init()
-
-        screen = pygame.display.set_mode(size, pygame.RESIZABLE)
+        screen = pygame.display.set_mode(size, pygame.HWSURFACE)
         pygame.display.set_caption("SUDOKU")
         screen.fill(background_color)
         pygame.display.update()
@@ -720,7 +709,6 @@ def main(initial_sudoko=np.zeros((9, 9), dtype=int)):
 
             new_game_btn = draw_button(New_Game, screen=screen)
             restart_game_btn = draw_button(Restart_Game, screen=screen)
-            # hint_btn = draw_button(Hint, screen=screen)
             screen_shot_btn = draw_button(Screen_Shot, screen=screen)
 
             remaining_hints_btn = draw_button(Remaining_Hints, screen=screen)
@@ -754,14 +742,6 @@ def main(initial_sudoko=np.zeros((9, 9), dtype=int)):
                     pygame.quit()
                     sys.exit()
 
-                # if event.type == pygame.VIDEORESIZE:
-                #     # screen = pygame.display.set_mode(
-                #     #     (event.w, event.h), pygame.RESIZABLE)
-
-                #     new_size = (event.w, event.h)
-                #     main(_size=new_size)
-                #     # pygame.display.update()
-
                 if totall_mistakes < 3:
                     if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                         pos = pygame.mouse.get_pos()
@@ -793,17 +773,20 @@ def main(initial_sudoko=np.zeros((9, 9), dtype=int)):
                                 Screen_Shot, screen=screen)
                             pygame.display.flip()
                             ss_sound.play()
-                            pygame.image.save(screen, "ScreenShot.jpg")
+                            file = easygui.filesavebox(
+                                title="Browser",
+                                msg="Select a folder:",
+                                filetypes=["*.jpg"],
+                                default="Sudoku Screenshot",
+                            )
+                            if file != None:
+                                pygame.image.save(screen, f"{file}.jpg")
                             sleep(0.1)
 
                 else:
-                    # print("Umaadam")
                     gameover_sound.play()
                     sleep(1)
                     game_over(screen, orginal_sudoko)
-                    # print("Umaadam")
-                    # pygame.quit()
-                    # sys.exit()
 
             pygame.display.flip()
 
@@ -822,7 +805,6 @@ def main(initial_sudoko=np.zeros((9, 9), dtype=int)):
 
     menu = pygame_menu.Menu(
         "Welcome", SIZE[0], SIZE[1], theme=pygame_menu.themes.THEME_SOLARIZED)
-    # menu.add.text_input("Name :", default="John Doe")
 
     s = menu.add.selector(
         "Difficulty :", [("Easy", 1), ("Medium", 2), ("Hard", 3)], onchange=set_difficulty)
