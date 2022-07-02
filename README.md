@@ -4,7 +4,7 @@ AP_FinalProject
 
 ## Introduction
 Run the game and enjoy!
-<img src=".Screenshot.jpg" alt="space_hunter">
+<img src=".\resources\Screenshot.jpg" alt="space_hunter">
 
 ## Windows Instructions
 1. Upgrade `pip` to the latest version and install `virtualenv`:
