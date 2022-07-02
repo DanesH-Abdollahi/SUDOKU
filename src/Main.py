@@ -3,7 +3,6 @@ from time import sleep, time
 from pygame.rect import *
 from typing import Tuple, Any
 import easygui
-from Buttons import *
 from DrawFuntions import *
 from GameFunctions import *
 
@@ -62,7 +61,7 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
         else:
             hint_btn = draw_button(Hint, screen=screen)
             Remaining_Hints["text_color_inactive"] = "#003566"
-        remaining_hints_btn = draw_button(Remaining_Hints, screen=screen)
+        draw_button(Remaining_Hints, screen=screen)
 
         new_game_btn = draw_button(New_Game, screen=screen)
         restart_game_btn = draw_button(Restart_Game, screen=screen)
@@ -434,18 +433,16 @@ def main(initial_sudoko=np.zeros((9, 9), dtype=int)):
     Mute["text"] = "Unmuted"
     Mute["color_inactive"] = "#2ec4b6"
     Mute["text_color_inactive"] = "#560bad"
-
-    pygame.init()
-    pygame.mixer.init()
-    screen = pygame.display.set_mode(SIZE, pygame.HWSURFACE)
-    pygame.display.set_icon(gameIcon)
-    pygame.display.set_caption("SUDOKU")
-
     Remaining_Hints["text_color_inactive"] = "#003566"
 
+    # initiale the screen
+    screen = screen_init()
+
+    # For Reset The Game
     if initial_sudoko.tolist() != np.zeros((9, 9), dtype=int).tolist():
         start_the_game(initial_sudoko, is_muted)
 
+    # Define Callbacks for Menu Bottoms
     def play_buttom():
         global Difficulty
         if not(is_muted):
@@ -457,12 +454,12 @@ def main(initial_sudoko=np.zeros((9, 9), dtype=int)):
         selected = value[0]
         Difficulty = int(selected[1])
 
+    # The First Menu
     menu = pygame_menu.Menu(
         "Welcome", SIZE[0], SIZE[1], theme=My_theme)
 
     s = menu.add.selector(
         "Difficulty :", [("Easy", 1), ("Medium", 2), ("Hard", 3)], onchange=set_difficulty)
-
     s.set_onselect(set_difficulty(s.get_value(), s.get_index()))
     menu.add.button("Play",  play_buttom)
     menu.add.button("Quit", pygame_menu.events.EXIT)
