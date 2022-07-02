@@ -1,3 +1,4 @@
+from fileinput import filename
 import pygame
 import sys
 from dokusan import generators, renderers, solvers
@@ -8,7 +9,10 @@ from pygame.rect import *
 import pygame_menu
 import pygame_menu.themes
 from typing import Tuple, Any
+import easygui
 
+# import os
+# import subprocess
 
 SIZE = (800, 800)
 Width, Height = SIZE
@@ -139,6 +143,30 @@ Remaining_Hints = {  # NEWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
     - Button_Border * 6
     - Button_Height * 3
     - Vertical_Space_Between_Buttons * 2,
+    "width": 2 * Button_Width + Horizontal_Space_Between_Buttons,
+    "height": Button_Height,
+    "border": Button_Border,
+    "color_inactive": "#bbd0ff",
+    "color_active": "#",
+    "border_color": background_color,
+    "text": f"Remaining Hints: {Remaining_Hints_Num}",
+    "text_color_inactive": "#003566",
+    "text_color_active": "#",
+    "font": "FORTE.ttf",
+    "font_size": 30,
+}
+
+Errors_Happened = {  # NEWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+    "left": Width
+    - Margin
+    - 4 * Button_Border
+    - 2 * Button_Width
+    - Horizontal_Space_Between_Buttons,
+    "top": Height
+    - Margin
+    - Button_Border * 4
+    - Button_Height * 2
+    - Vertical_Space_Between_Buttons * 1,
     "width": 2 * Button_Width + Horizontal_Space_Between_Buttons,
     "height": Button_Height,
     "border": Button_Border,
@@ -327,6 +355,12 @@ def insert(
         new_game_btn = draw_button(New_Game, screen=screen)
         restart_game_btn = draw_button(Restart_Game, screen=screen)
         # hint_btn = draw_button(Hint, screen=screen)
+        Errors_Happened[
+            "text"
+        ] = f"Total Mistakes : {totall_mistakes}"  # NEWWWWWWWWWWWWWWWWWWWWWWWW
+        errors_happened_btn = draw_button(
+            Errors_Happened, screen=screen
+        )  # NEWWWWWWWWWWWWWWWWWWWWWWWW
         if Remaining_Hints_Num == 0:
             hint_btn = draw_button(Hint, screen=screen, mouse_over=1)
             Remaining_Hints["text_color_inactive"] = RED
@@ -355,13 +389,17 @@ def insert(
 
             if event.type == pygame.MOUSEBUTTONUP:
                 if hint_btn.collidepoint(pygame.mouse.get_pos()) and hint_numbers < 3:
-                    if Remaining_Hints_Num == 0:
-                        hint_btn = draw_button(Hint, screen=screen, mouse_over=1)
-                        Remaining_Hints["text_color_inactive"] = RED
-                    else:
+                    # if Remaining_Hints_Num == 0:
+                    #     hint_btn = draw_button(Hint, screen=screen, mouse_over=1)
+                    #     Remaining_Hints["text_color_inactive"] = RED
+                    if Remaining_Hints_Num != 0:
                         hint_btn = draw_button(Hint, screen=screen)
                         Remaining_Hints["text_color_inactive"] = "#003566"
                     Remaining_Hints_Num = 2 - hint_numbers
+                    if Remaining_Hints_Num == 0:
+                        hint_btn = draw_button(Hint, screen=screen, mouse_over=1)
+                        Remaining_Hints["text_color_inactive"] = RED
+
                     Remaining_Hints["text"] = f"Remaining Hints: {Remaining_Hints_Num}"
                     remaining_hints_btn = draw_button(Remaining_Hints, screen=screen)
 
@@ -419,7 +457,14 @@ def insert(
                     pygame.display.flip()
                     # ss_sound = pygame.mixer.Sound("ScreenShot.wav")
                     # ss_sound.play()
-                    pygame.image.save(screen, "ScreenShot.jpg")
+                    file = easygui.filesavebox(
+                        title="Browser",
+                        msg="Select a folder:",
+                        filetypes=["*.jpg"],
+                        default="Sudoku Screenshot",
+                    )
+                    if file != None:
+                        pygame.image.save(screen, f"{file}.jpg")
                     sleep(0.1)
 
             if event.type == pygame.KEYDOWN:
@@ -813,6 +858,13 @@ def main(initial_sudoko=np.zeros((9, 9), dtype=int)):
             screen_shot_btn = draw_button(Screen_Shot, screen=screen)
             remaining_hints_btn = draw_button(Remaining_Hints, screen=screen)
             Remaining_Hints_Num = 3 - hint_numbers
+            Errors_Happened[
+                "text"
+            ] = f"Total Mistakes : {totall_mistakes}"  # NEWWWWWWWWWWWWWWWWWWWWWWWW
+            errors_happened_btn = draw_button(
+                Errors_Happened, screen=screen
+            )  # NEWWWWWWWWWWWWWWWWWWWWWWWW
+
             if Remaining_Hints_Num == 0:
                 hint_btn = draw_button(Hint, screen=screen, mouse_over=1)
                 Remaining_Hints["text_color_inactive"] = RED
@@ -886,7 +938,14 @@ def main(initial_sudoko=np.zeros((9, 9), dtype=int)):
                             screen_shot_btn = draw_button(Screen_Shot, screen=screen)
                             pygame.display.flip()
                             # ss_sound.play()
-                            pygame.image.save(screen, "ScreenShot.jpg")
+                            file = easygui.filesavebox(
+                                title="Browser",
+                                msg="Select a folder:",
+                                filetypes=["*.jpg"],
+                                default="Sudoku Screenshot",
+                            )
+                            if file != None:
+                                pygame.image.save(screen, f"{file}.jpg")
                             sleep(0.1)
 
                 else:
