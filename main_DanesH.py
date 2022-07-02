@@ -1,3 +1,4 @@
+from tkinter.filedialog import FileDialog, asksaveasfile
 import pygame
 import sys
 from dokusan import generators, renderers, solvers
@@ -9,8 +10,7 @@ import pygame_menu
 import pygame_menu.themes
 from typing import Tuple, Any
 
-
-SIZE = (800, 800)
+SIZE = (720, 720)
 Width, Height = SIZE
 
 BLACK = (0, 0, 0)
@@ -22,14 +22,14 @@ BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
 CYAN = (0, 255, 255)
 MAGENTA = (255, 0, 255)
-MY_COLOR = (204, 229, 255)
-MY_COLOR = (176, 224, 230)
 MY_COLOR = (253, 245, 230)
 
 Orginal_Sudoko_number_color = (25, 25, 112)
 background_color = MY_COLOR
 
 Margin = Width // 80
+
+Remaining_Hints_Num = 3
 
 Button_Border = 0
 Button_Width = int(Width / 5)
@@ -131,6 +131,50 @@ Time_Elapsed = {
     "font_size": 30,
 }
 
+Remaining_Hints = {
+    "left": Width - Margin - 4 * Button_Border - 2*Button_Width - Horizontal_Space_Between_Buttons,
+    "top": Height
+    - Margin
+    - Button_Border * 6
+    - Button_Height * 3
+    - Vertical_Space_Between_Buttons * 2,
+    "width": 2 * Button_Width + Horizontal_Space_Between_Buttons,
+    "height": Button_Height,
+    "border": Button_Border,
+    "color_inactive": "#adc178",
+    "color_active": "#",
+    "border_color": background_color,
+    "text": f"Remaining Hints: {Remaining_Hints_Num}",
+    "text_color_inactive": "#003566",
+    "text_color_active": "#",
+    "font": "FORTE.ttf",
+    "font_size": 30,
+}
+
+Errors_Happened = {
+    "left": Width
+    - Margin
+    - 4 * Button_Border
+    - 2 * Button_Width
+    - Horizontal_Space_Between_Buttons,
+    "top": Height
+    - Margin
+    - Button_Border * 4
+    - Button_Height * 2
+    - Vertical_Space_Between_Buttons * 1,
+    "width": 2 * Button_Width + Horizontal_Space_Between_Buttons,
+    "height": Button_Height,
+    "border": Button_Border,
+    "color_inactive": "#bbd0ff",
+    "color_active": "#",
+    "border_color": background_color,
+    "text": f"Remaining Hints: {Remaining_Hints_Num}",
+    "text_color_inactive": RED,
+    "text_color_active": "#",
+    "font": "FORTE.ttf",
+    "font_size": 30,
+}
+
 
 def draw_button(Button_Name, screen,  mouse_over=0):
 
@@ -196,22 +240,30 @@ def add_lines(screen, Horizental_diff, Vertical_diff, margin, bottom_margin):
                 BLACK,
                 (margin + Horizental_diff * i, margin),
                 (margin + Horizental_diff * i, Height - bottom_margin),
-                6,
+                5,
             )  # Draw Vertical Lines
+            if i == 9:
 
-            pygame.draw.line(
-                screen,
-                BLACK,
-                (margin, margin + Vertical_diff * i),
-                (margin + Horizental_diff * 9, margin + Vertical_diff * i),
-                6,)
+                pygame.draw.line(
+                    screen,
+                    BLACK,
+                    (margin, Height - bottom_margin),
+                    (margin + Horizental_diff * 9, Height - bottom_margin),
+                    5,)
+            else:
+                pygame.draw.line(
+                    screen,
+                    BLACK,
+                    (margin, margin + Vertical_diff * i),
+                    (margin + Horizental_diff * 9, margin + Vertical_diff * i),
+                    5,)
 
         pygame.draw.line(
             screen,
             BLACK,
             (margin + Horizental_diff * i, margin),
             (margin + Horizental_diff * i, Height - bottom_margin),
-            4,
+            3,
         )  # Draw Vertical Lines
 
         pygame.draw.line(
@@ -219,14 +271,14 @@ def add_lines(screen, Horizental_diff, Vertical_diff, margin, bottom_margin):
             BLACK,
             (margin, margin + Vertical_diff * i),
             (margin + Horizental_diff * 9, margin + Vertical_diff * i),
-            4,
+            3,
         )  # Draw Horizental Lines
 
     pygame.display.update()
 
 
 def draw_text(screen, text, pos, color):
-    font = pygame.font.SysFont('Comic Sans MS', 70)
+    font = pygame.font.SysFont('Comic Sans MS', 60)
     img = font.render(text, True, color)
     pos = img.get_rect(center=pos)
     screen.blit(img, pos)
@@ -235,7 +287,7 @@ def draw_text(screen, text, pos, color):
 
 def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_margin,
            curr_sudoko_table, solution_sudoko, rects,  totall_mistakes, orginal_sudoko, hint_numbers, new_game_sound,
-           ss_sound, res_sound, hint_sound, start):
+           ss_sound, res_sound, hint_sound, start, correct_sound, mistake_sound):
 
     i, j = position[1], position[0]
 
@@ -250,7 +302,7 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
     if (tmp[i][j] != 0):
         return totall_mistakes, tmp, hint_numbers
 
-    new_rect(screen, rects[9*i + j], BLACK, (173, 216, 230), 3,
+    new_rect(screen, rects[9*i + j], BLACK, (173, 216, 230), 1,
              Horizental_diff, Vertical_diff, margin, bottom_margin)
 
     while True:
@@ -272,13 +324,35 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
         )
 
         if totall_mistakes >= 3:
+            Errors_Happened[
+                "text"
+            ] = f"Total Mistakes : {totall_mistakes}"
+            errors_happened_btn = draw_button(
+                Errors_Happened, screen=screen
+            )
+            pygame.display.update()
             return totall_mistakes, tmp, hint_numbers
-            # pygame.quit()
-            # sys.exit()
+
+        Errors_Happened[
+            "text"
+        ] = f"Total Mistakes : {totall_mistakes}"
+        errors_happened_btn = draw_button(
+            Errors_Happened, screen=screen
+        )
+
+        Remaining_Hints_Num = 3 - hint_numbers
+        # hint_btn = draw_button(Hint, screen=screen)
+        if Remaining_Hints_Num == 0:
+            hint_btn = draw_button(Hint, screen=screen, mouse_over=1)
+            Remaining_Hints["text_color_inactive"] = RED
+        else:
+            hint_btn = draw_button(Hint, screen=screen)
+            Remaining_Hints["text_color_inactive"] = "#003566"
+        remaining_hints_btn = draw_button(Remaining_Hints, screen=screen)
 
         new_game_btn = draw_button(New_Game, screen=screen)
         restart_game_btn = draw_button(Restart_Game, screen=screen)
-        hint_btn = draw_button(Hint, screen=screen)
+        # hint_btn = draw_button(Hint, screen=screen)
         screen_shot_btn = draw_button(Screen_Shot, screen=screen)
 
         if new_game_btn.collidepoint(pygame.mouse.get_pos()):
@@ -302,10 +376,20 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
 
             if event.type == pygame.MOUSEBUTTONUP:
                 if hint_btn.collidepoint(pygame.mouse.get_pos()) and hint_numbers < 3:
-                    hint_btn = draw_button(Hint, screen=screen)
+                    if Remaining_Hints_Num != 0:
+                        hint_btn = draw_button(Hint, screen=screen)
+                        Remaining_Hints["text_color_inactive"] = "#003566"
+                    Remaining_Hints_Num = 2 - hint_numbers
+                    if Remaining_Hints_Num == 0:
+                        hint_btn = draw_button(
+                            Hint, screen=screen, mouse_over=1)
+                        Remaining_Hints["text_color_inactive"] = RED
+                    Remaining_Hints["text"] = f"Remaining Hints: {Remaining_Hints_Num}"
+                    remaining_hints_btn = draw_button(
+                        Remaining_Hints, screen=screen)
+
                     pygame.display.flip()
                     sleep(0.1)
-                    # hint_sound = pygame.mixer.Sound("Hint.wav")
                     hint_sound.play()
 
                     tmp = hint_func(screen, position, tmp, tmp_color,  solution_sudoko,
@@ -314,7 +398,7 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
                     hint_numbers += 1
 
                     tmp_color[i][j] = GREEN
-                    new_rect(screen, rects[9*i + j], BLACK, MY_COLOR, 3,
+                    new_rect(screen, rects[9*i + j], BLACK, MY_COLOR, 1,
                              Horizental_diff, Vertical_diff, margin, bottom_margin)
                     draw_text(screen, str(tmp[i][j]),
                               rects[9*i + j].center, tmp_color[i][j])
@@ -348,7 +432,7 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
                     return totall_mistakes, tmp, hint_numbers
 
                 if(event.key == 8):
-                    new_rect(screen, rects[9*i + j], BLACK,  (173, 216, 230), 3,
+                    new_rect(screen, rects[9*i + j], BLACK,  (173, 216, 230), 1,
                              Horizental_diff, Vertical_diff, margin, bottom_margin)
                     tmp[i][j] = 0
 
@@ -356,16 +440,17 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
                     # new_rect(screen, rects[9*i + j], BLACK, MY_COLOR, 3,
                     #          Horizental_diff, Vertical_diff, margin, bottom_margin)
                     if (event.key - 48 != tmp[i][j]):
-                        new_rect(screen, rects[9*i + j], BLACK, (173, 216, 230), 3,
+                        new_rect(screen, rects[9*i + j], BLACK, (173, 216, 230), 1,
                                  Horizental_diff, Vertical_diff, margin, bottom_margin)
 
                         if (event.key - 48) == solution_sudoko[i][j]:
+                            correct_sound.play()
                             draw_text(screen, str(event.key - 48),
                                       rects[9*i + j].center, GREEN)
                             # orginal_sudoko[i][j] = event.key - 48
                             tmp[i][j] = event.key - 48
                             tmp_color[i][j] = GREEN
-                            new_rect(screen, rects[9*i + j], BLACK, MY_COLOR, 3,
+                            new_rect(screen, rects[9*i + j], BLACK, MY_COLOR, 1,
                                      Horizental_diff, Vertical_diff, margin, bottom_margin)
                             draw_text(screen, str(tmp[i][j]),
                                       rects[9*i + j].center, tmp_color[i][j])
@@ -379,22 +464,25 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
                             tmp[i][j] = event.key - 48
                             tmp_color[i][j] = RED
                             totall_mistakes += 1
+                            if totall_mistakes < 3:
+                                mistake_sound.play()
 
                 if(0 < event.key - 1073741922 + 10 < 10):
                     # new_rect(screen, rects[9*i + j], BLACK, MY_COLOR, 3,
                     #          Horizental_diff, Vertical_diff, margin, bottom_margin)
 
                     if (event.key - 1073741922 + 10 != tmp[i][j]):
-                        new_rect(screen, rects[9*i + j], BLACK, (173, 216, 230), 3,
+                        new_rect(screen, rects[9*i + j], BLACK, (173, 216, 230), 1,
                                  Horizental_diff, Vertical_diff, margin, bottom_margin)
 
                         if (event.key - 1073741922 + 10) == solution_sudoko[i][j]:
+                            correct_sound.play()
                             draw_text(screen, str(event.key - 1073741922 + 10),
                                       rects[9*i + j].center, GREEN)
                             # orginal_sudoko[i][j] = event.key - 1073741922 + 10
                             tmp[i][j] = event.key - 1073741922 + 10
                             tmp_color[i][j] = GREEN
-                            new_rect(screen, rects[9*i + j], BLACK, MY_COLOR, 3,
+                            new_rect(screen, rects[9*i + j], BLACK, MY_COLOR, 1,
                                      Horizental_diff, Vertical_diff, margin, bottom_margin)
                             draw_text(screen, str(tmp[i][j]),
                                       rects[9*i + j].center, tmp_color[i][j])
@@ -408,6 +496,8 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
                             tmp[i][j] = event.key - 1073741922 + 10
                             tmp_color[i][j] = RED
                             totall_mistakes += 1
+                            if totall_mistakes < 3:
+                                mistake_sound.play()
 
             # print(i, j)
             if event.type == pygame.MOUSEBUTTONUP and is_valid(tmp, solution_sudoko):
@@ -417,13 +507,13 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
                     new_i-margin) // Vertical_diff, (new_j-margin) // Horizental_diff
 
                 if(i != new_i or j != new_j):
-                    new_rect(screen, rects[9*i + j], BLACK, MY_COLOR, 3,
+                    new_rect(screen, rects[9*i + j], BLACK, MY_COLOR, 1,
                              Horizental_diff, Vertical_diff, margin, bottom_margin)
 
                     totall_mistakes, tmp, hint_numbers = insert(screen, pos, margin, Horizental_diff, Vertical_diff, bottom_margin,
                                                                 tmp, solution_sudoko, rects,  totall_mistakes,
                                                                 orginal_sudoko, hint_numbers, new_game_sound,
-                                                                ss_sound, res_sound, hint_sound, start)
+                                                                ss_sound, res_sound, hint_sound, start, correct_sound, mistake_sound)
 
                     return totall_mistakes, tmp, hint_numbers
 
@@ -479,7 +569,7 @@ def add_sudoko_table(screen, Horizental_diff, Vertical_diff, margin, rects, bott
             if (0 < sudoku_np_array[i][j] < 10):
 
                 new_rect(screen, rects[i*9 + j], BLACK,
-                         "#FFE4E1", 3, Horizental_diff, Vertical_diff, margin, bottom_margin)
+                         "#FFE4E1", 1, Horizental_diff, Vertical_diff, margin, bottom_margin)
                 draw_text(screen, str(
                     sudoku_np_array[i][j]), rects[i*9 + j].center, Orginal_Sudoko_number_color)
 
@@ -544,6 +634,11 @@ def main(initial_sudoko=np.zeros((9, 9), dtype=int)):
     pygame.init()
     pygame.mixer.init()
     screen = pygame.display.set_mode(SIZE, pygame.RESIZABLE)
+    gameIcon = pygame.image.load('Icon.png')
+    pygame.display.set_icon(gameIcon)
+    pygame.display.set_caption("SUDOKU")
+
+    Remaining_Hints["text_color_inactive"] = "#003566"
 
     ss_sound = pygame.mixer.Sound("ScreenShot.wav")
     new_game_sound = pygame.mixer.Sound("NewGame.wav")
@@ -551,6 +646,8 @@ def main(initial_sudoko=np.zeros((9, 9), dtype=int)):
     hint_sound = pygame.mixer.Sound("Hint.wav")
     gameover_sound = pygame.mixer.Sound("GameOver.wav")
     win_sound = pygame.mixer.Sound("Win.wav")
+    correct_sound = pygame.mixer.Sound("Correct.wav")
+    mistake_sound = pygame.mixer.Sound("Mistake.wav")
 
     def sudoku_solved(screen):
         menu = pygame_menu.Menu(
@@ -600,6 +697,10 @@ def main(initial_sudoko=np.zeros((9, 9), dtype=int)):
         hint_numbers = 0
         tmp = orginal_sudoko.copy()
 
+        Remaining_Hints_Num = 3
+        Remaining_Hints["text"] = f"Remaining Hints: {Remaining_Hints_Num}"
+        remaining_hints_btn = draw_button(Remaining_Hints, screen=screen)
+
         while True:
 
             elapsed = round(time() - start) - 1
@@ -610,10 +711,26 @@ def main(initial_sudoko=np.zeros((9, 9), dtype=int)):
                 Time_Elapsed, screen=screen
             )
 
+            Errors_Happened[
+                "text"
+            ] = f"Total Mistakes : {totall_mistakes}"
+            errors_happened_btn = draw_button(
+                Errors_Happened, screen=screen
+            )
+
             new_game_btn = draw_button(New_Game, screen=screen)
             restart_game_btn = draw_button(Restart_Game, screen=screen)
-            hint_btn = draw_button(Hint, screen=screen)
+            # hint_btn = draw_button(Hint, screen=screen)
             screen_shot_btn = draw_button(Screen_Shot, screen=screen)
+
+            remaining_hints_btn = draw_button(Remaining_Hints, screen=screen)
+            Remaining_Hints_Num = 3 - hint_numbers
+            if Remaining_Hints_Num == 0:
+                hint_btn = draw_button(Hint, screen=screen, mouse_over=1)
+                Remaining_Hints["text_color_inactive"] = RED
+            else:
+                hint_btn = draw_button(Hint, screen=screen)
+                Remaining_Hints["text_color_inactive"] = "#003566"
 
             if new_game_btn.collidepoint(pygame.mouse.get_pos()):
                 new_game_btn = draw_button(
@@ -653,7 +770,7 @@ def main(initial_sudoko=np.zeros((9, 9), dtype=int)):
                             totall_mistakes, tmp, hint_numbers = insert(screen, pos, margin, Horizental_diff, Vertical_diff,
                                                                         bottom_margin, tmp, solution_sudoko, rects,
                                                                         totall_mistakes,  orginal_sudoko, hint_numbers, new_game_sound,
-                                                                        ss_sound, res_sound, hint_sound, start)
+                                                                        ss_sound, res_sound, hint_sound, start, correct_sound, mistake_sound)
                             tmp = tmp
 
                         elif new_game_btn.collidepoint(pygame.mouse.get_pos()):
