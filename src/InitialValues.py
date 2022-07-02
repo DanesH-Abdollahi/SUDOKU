@@ -18,8 +18,7 @@ My_theme = pygame_menu.themes.THEME_SOLARIZED.copy()
 My_theme.title_font = "../resources/FORTE.ttf"
 My_theme.title_font_size = 80
 My_theme.background_color = "#f2e9e4"
-My_theme.title_offset = Width/3-Width/40, 0
-My_theme.title_bar_style = 1001
+# My_theme.title_bar_style = 1001
 My_theme.widget_font_size = 50
 My_theme.widget_font = "../resources/FORTE.ttf"
 

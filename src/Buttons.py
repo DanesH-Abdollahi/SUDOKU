@@ -17,7 +17,7 @@ New_Game = {
     "text_color_inactive": "#000000",
     "text_color_active": "#ffffff",
     "font": "../resources/FORTE.ttf",
-    "font_size": 30,
+    "font_size": 25,
 }
 
 Restart_Game = {
@@ -33,7 +33,7 @@ Restart_Game = {
     "text_color_inactive": "#000000",
     "text_color_active": "#ffffff",
     "font": "../resources/FORTE.ttf",
-    "font_size": 30,
+    "font_size": 25,
 }
 
 Hint = {
@@ -56,7 +56,7 @@ Hint = {
     "text_color_inactive": "#000000",
     "text_color_active": "#ffffff",
     "font": "../resources/FORTE.ttf",
-    "font_size": 30,
+    "font_size": 25,
 }
 
 Screen_Shot = {
@@ -75,7 +75,7 @@ Screen_Shot = {
     "text_color_inactive": "#000000",
     "text_color_active": "#ffffff",
     "font": "../resources/FORTE.ttf",
-    "font_size": 30,
+    "font_size": 25,
 }
 
 Time_Elapsed = {
@@ -95,7 +95,7 @@ Time_Elapsed = {
     "text_color_inactive": "#fefee3",
     "text_color_active": "#",
     "font": "../resources/FORTE.ttf",
-    "font_size": 30,
+    "font_size": 27,
 }
 
 Remaining_Hints = {
@@ -152,11 +152,11 @@ Mute = {
     "width": 2 * Button_Width + Horizontal_Space_Between_Buttons,
     "height": Button_Height,
     "border": Button_Border,
-    "color_inactive": "#bbd0ff",
+    "color_inactive": "#2ec4b6",
     "color_active": "#",
     "border_color": background_color,
     "text": "Unmuted",
-    "text_color_inactive": "#003566",
+    "text_color_inactive": "#560bad",
     "text_color_active": "#",
     "font": "../resources/FORTE.ttf",
     "font_size": 30,

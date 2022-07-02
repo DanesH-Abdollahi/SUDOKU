@@ -157,14 +157,16 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
                     is_muted = not (is_muted)
                     if is_muted == 1:
                         Mute["text"] = "Muted"
+                        Mute["color_inactive"] = "#ee4266"
+                        Mute["text_color_inactive"] = "#ffd500"
                         mute_btn = draw_button(
                             Mute, screen=screen
                         )
                     elif is_muted == 0:
                         Mute["text"] = "Unmuted"
-                        mute_btn = draw_button(
-                            Mute, screen=screen
-                        )
+                        Mute["color_inactive"] = "#2ec4b6"
+                        Mute["text_color_inactive"] = "#560bad"
+                        mute_btn = draw_button(Mute, screen=screen)
 
             if event.type == pygame.KEYDOWN:
                 if (curr_sudoko_table[i][j] != 0):
@@ -255,7 +257,7 @@ def insert(screen, position, margin, Horizental_diff, Vertical_diff, bottom_marg
 
 def game_over(screen, orginal_sudoku, is_muted):
     menu = pygame_menu.Menu(
-        "Game Over", SIZE[0], SIZE[1], theme=pygame_menu.themes.THEME_SOLARIZED)
+        "Game Over", SIZE[0], SIZE[1], theme=My_theme)
 
     def reset():
         if not(is_muted):
@@ -274,7 +276,7 @@ def game_over(screen, orginal_sudoku, is_muted):
 
 def sudoku_solved(screen):
     menu = pygame_menu.Menu(
-        "Congratulations !", SIZE[0], SIZE[1], theme=pygame_menu.themes.THEME_SOLARIZED)
+        "Congratulations !", SIZE[0], SIZE[1], theme=My_theme)
 
     def play():
         main()
@@ -407,14 +409,16 @@ def start_the_game(initial_sudoko, is_muted, difficulty=1):
                         is_muted = not (is_muted)
                         if is_muted == 1:
                             Mute["text"] = "Muted"
+                            Mute["color_inactive"] = "#ee4266"
+                            Mute["text_color_inactive"] = "#ffd500"
                             mute_btn = draw_button(
                                 Mute, screen=screen
                             )
                         elif is_muted == 0:
                             Mute["text"] = "Unmuted"
-                            mute_btn = draw_button(
-                                Mute, screen=screen
-                            )
+                            Mute["color_inactive"] = "#2ec4b6"
+                            Mute["text_color_inactive"] = "#560bad"
+                            mute_btn = draw_button(Mute, screen=screen)
 
             else:
                 if not(is_muted):
@@ -428,6 +432,9 @@ def start_the_game(initial_sudoko, is_muted, difficulty=1):
 def main(initial_sudoko=np.zeros((9, 9), dtype=int)):
     is_muted = 0
     Mute["text"] = "Unmuted"
+    Mute["color_inactive"] = "#2ec4b6"
+    Mute["text_color_inactive"] = "#560bad"
+
     pygame.init()
     pygame.mixer.init()
     screen = pygame.display.set_mode(SIZE, pygame.HWSURFACE)
@@ -451,7 +458,7 @@ def main(initial_sudoko=np.zeros((9, 9), dtype=int)):
         Difficulty = int(selected[1])
 
     menu = pygame_menu.Menu(
-        "Welcome", SIZE[0], SIZE[1], theme=pygame_menu.themes.THEME_SOLARIZED)
+        "Welcome", SIZE[0], SIZE[1], theme=My_theme)
 
     s = menu.add.selector(
         "Difficulty :", [("Easy", 1), ("Medium", 2), ("Hard", 3)], onchange=set_difficulty)

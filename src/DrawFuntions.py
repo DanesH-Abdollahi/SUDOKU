@@ -105,7 +105,7 @@ def add_lines(screen, Horizental_diff, Vertical_diff, margin, bottom_margin):
 
 
 def draw_text(screen, text, pos, color):
-    font = pygame.font.SysFont('Comic Sans MS', 60)
+    font = pygame.font.SysFont('Comic Sans MS', 50)
     img = font.render(text, True, color)
     pos = img.get_rect(center=pos)
     screen.blit(img, pos)
