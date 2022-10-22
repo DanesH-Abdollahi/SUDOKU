@@ -1,4 +1,4 @@
-# SUDOKO
+# SUDOKU
 
 ## Game Interface
 <div style="text-align:center"><img src=".\resources\Screenshot.jpg" /></div>
